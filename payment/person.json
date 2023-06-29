@@ -1,0 +1,165 @@
+{
+  "id": "acct_1NN8EgPbMs6IhgsR",
+  "object": "account",
+  "business_profile": {
+    "mcc": "7623",
+    "name": "acme inc123",
+    "product_description": null,
+    "support_address": null,
+    "support_email": null,
+    "support_phone": null,
+    "support_url": null,
+    "url": "www.google.com"
+  },
+  "business_type": "company",
+  "capabilities": {
+    "card_payments": "active",
+    "transfers": "active"
+  },
+  "charges_enabled": true,
+  "company": {
+    "address": {
+      "city": "Vancouver",
+      "country": "CA",
+      "line1": "4395 Perry St, Vancouver, BC V5N 3X6, Canada",
+      "line2": null,
+      "postal_code": "M4W 2J2",
+      "state": "BC"
+    },
+    "directors_provided": false,
+    "executives_provided": false,
+    "name": "acme inc123",
+    "owners_provided": false,
+    "phone": "4088675309",
+    "tax_id_provided": true,
+    "verification": {
+      "document": {
+        "back": "file_1NNOP6PbMs6IhgsRWsngr0Og",
+        "details": null,
+        "details_code": null,
+        "front": "file_1NNOP3PbMs6IhgsRtClBopHA"
+      }
+    }
+  },
+  "country": "CA",
+  "created": 1687758315,
+  "default_currency": "cad",
+  "details_submitted": true,
+  "email": null,
+  "external_accounts": {
+    "object": "list",
+    "data": [
+      {
+        "id": "ba_1NN8EgPbMs6IhgsRdGxys4PA",
+        "object": "bank_account",
+        "account": "acct_1NN8EgPbMs6IhgsR",
+        "account_holder_name": "acme inc123",
+        "account_holder_type": "company",
+        "account_type": null,
+        "available_payout_methods": [
+          "standard"
+        ],
+        "bank_name": "STRIPE TEST BANK",
+        "country": "CA",
+        "currency": "cad",
+        "default_for_currency": true,
+        "fingerprint": "ZE68lm5iZcQhqjF5",
+        "future_requirements": {
+          "currently_due": [],
+          "errors": [],
+          "past_due": [],
+          "pending_verification": []
+        },
+        "last4": "6789",
+        "metadata": {},
+        "requirements": {
+          "currently_due": [],
+          "errors": [],
+          "past_due": [],
+          "pending_verification": []
+        },
+        "routing_number": "11000-000",
+        "status": "new"
+      }
+    ],
+    "has_more": false,
+    "total_count": 1,
+    "url": "/v1/accounts/acct_1NN8EgPbMs6IhgsR/external_accounts"
+  },
+  "future_requirements": {
+    "alternatives": [],
+    "current_deadline": null,
+    "currently_due": [],
+    "disabled_reason": null,
+    "errors": [],
+    "eventually_due": [],
+    "past_due": [],
+    "pending_verification": []
+  },
+  "metadata": {},
+  "payouts_enabled": true,
+  "requirements": {
+    "alternatives": [],
+    "current_deadline": null,
+    "currently_due": [],
+    "disabled_reason": null,
+    "errors": [],
+    "eventually_due": [],
+    "past_due": [],
+    "pending_verification": []
+  },
+  "settings": {
+    "bacs_debit_payments": {},
+    "branding": {
+      "icon": null,
+      "logo": null,
+      "primary_color": null,
+      "secondary_color": null
+    },
+    "card_issuing": {
+      "tos_acceptance": {
+        "date": null,
+        "ip": null
+      }
+    },
+    "card_payments": {
+      "decline_on": {
+        "avs_failure": false,
+        "cvc_failure": false
+      },
+      "statement_descriptor_prefix": null,
+      "statement_descriptor_prefix_kana": null,
+      "statement_descriptor_prefix_kanji": null
+    },
+    "dashboard": {
+      "display_name": "Google",
+      "timezone": "Etc/UTC"
+    },
+    "payments": {
+      "statement_descriptor": "WWW.GOOGLE.COM",
+      "statement_descriptor_kana": null,
+      "statement_descriptor_kanji": null
+    },
+    "payouts": {
+      "debit_negative_balances": false,
+      "schedule": {
+        "delay_days": 7,
+        "interval": "daily"
+      },
+      "statement_descriptor": null
+    },
+    "sepa_debit_payments": {}
+  },
+  "tos_acceptance": {
+    "date": 1687758314,
+    "ip": "70.79.174.223",
+    "user_agent": null
+  },
+  "type": "custom"
+}%                                                                                            
+
+// btok_1NLzJABNnk6PrsIhQbwhzULy'
+
+// stripe accounts retrieve --stripe-account ACCOUNT ID
+
+// stripe accounts trieve
