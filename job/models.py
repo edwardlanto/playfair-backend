@@ -1,9 +1,6 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-import geocoder
-import os
 from datetime import date
 from ckeditor.fields import RichTextField
 from company.models import Company
@@ -140,7 +137,7 @@ class Job(models.Model):
     min_salary = models.IntegerField(default=1, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     max_salary = models.IntegerField(default=1, validators=[MinValueValidator(0), MaxValueValidator(1000000)], null=True)
     positions = models.IntegerField(default=1)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, related_name="company")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, related_name="company", blank=True)
     responsibilities = RichTextField(blank=True, null=True)
     skills = RichTextField(blank=True, null=True)
     lat = models.DecimalField(max_digits=9, decimal_places=6, null=True)
