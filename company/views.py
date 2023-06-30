@@ -33,15 +33,8 @@ bleached_attr = ['class', 'href', 'style']
 @api_view(['GET'])
 def get_companies(request):
     try:
-
-        if cache.get('companies'):
-            filterset = cache.get('companies')
-        else:
-            filterset = Company.objects.all()
-            cache.set('companies', filterset)
-            
         order = "-name" if request.GET.get('orderBy') == 'desc' else "name"
-        filterset = CompanyFilter(request.GET, queryset=filterset.order_by(order))
+        filterset = CompanyFilter(request.GET, queryset=Company.objects.all().order_by(order))   
         total = filterset.qs.count()
         per_page = 50
         paginator = PageNumberPagination()
@@ -56,6 +49,28 @@ def get_companies(request):
         }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({ "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #     if cache.get('companies'):
+    #         filterset = cache.get('companies')
+    #     else:
+    #         filterset = Company.objects.all()
+    #         cache.set('companies', filterset)
+            
+    #     order = "-name" if request.GET.get('orderBy') == 'desc' else "name"
+    #     filterset = CompanyFilter(request.GET, queryset=filterset.order_by(order))
+    #     total = filterset.qs.count()
+    #     per_page = 50
+    #     paginator = PageNumberPagination()
+    #     paginator.page_size = per_page
+    #     queryset = paginator.paginate_queryset(filterset.qs, request)
+    #     serializer = BaseCompanySerializer(queryset, many=True, context={'request': request})
+
+    #     return Response({
+    #         "total": total,
+    #         "companies": serializer.data,
+    #         "per_page": per_page,
+    #     }, status=status.HTTP_200_OK)
+    # except Exception as e:
+    #     return Response({ "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 @api_view(['GET'])
 def test_token(request):
