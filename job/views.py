@@ -21,6 +21,11 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 from datetime import date
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.conf import settings
+CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 
 @api_view(['GET'])
 def jobs(request):
@@ -33,7 +38,6 @@ def jobs(request):
     queryset = paginator.paginate_queryset(filterset.qs, request)
     serializer = BaseJobSerializer(queryset, many=True,  context={'request': request})
     
-
     return Response({
         "count": count,
         "resPerPage": resPerPage,
@@ -42,23 +46,39 @@ def jobs(request):
 
 @api_view(['GET'])
 def homeJobs(request):
-    featured = Job.objects.filter(featured=True)
-    featured = BaseJobSerializer(featured, many=True, context={'request': request})
-    recent = Job.objects.filter(featured=False)
-    recent = BaseJobSerializer(recent, many=True, context={'request': request})
-    companies = BaseCompanySerializer(Company.objects.all(), many=True)
-    is_complete = None
-    if CustomUserModel.objects.filter(id=request.user.id).exists():
-         is_complete = CustomUserModel.objects.filter(id=request.user.id).first().is_complete
+    try:
+        # cache.delete_many(cache.keys('companies'))
+        if cache.get('home_featured'):
+            featured = cache.get('home_featured')
+        else:
+            featured = BaseJobSerializer(Job.objects.filter(featured=True), many=True, context={'request': request}).data
+            cache.set('home_featured', featured)
+        if cache.get('home_recent'):
+            recent = cache.get('home_recent')
+        else:
+            recent = BaseJobSerializer(Job.objects.filter(featured=False), many=True, context={'request': request}).data
+            cache.set('home_recent', recent)
+        if cache.get('home_companies'):
+            companies = cache.get('home_companies')
+        else:
+            companies = BaseCompanySerializer(Company.objects.all(), many=True).data 
+            cache.set('home_companies', companies)
 
-    if request.user:
-         print('RAN')
-    return Response({
-        "featured": featured.data,
-        "recent": recent.data,
-        "companies": companies.data,
-        'is_complete': is_complete
-    }, status=status.HTTP_200_OK)
+        is_complete = None
+        if CustomUserModel.objects.filter(id=request.user.id).exists():
+            is_complete = CustomUserModel.objects.filter(id=request.user.id).first().is_complete
+        print(recent)
+        return Response({
+            "featured": featured,
+            "recent": recent,
+            "companies": companies,
+            'is_complete': is_complete
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)         
 
 
 @api_view(['GET'])

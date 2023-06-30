@@ -24,9 +24,12 @@ from rest_framework.generics import GenericAPIView
 from django.conf import settings
 from company.models import Company, Logo, SavedCompanies
 import bleach
-# from django.core.cache import cache
-# from django.core.cache.backends.base import DEFAULT_TIMEOUT
-# CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+
+
+CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 
 bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
 bleached_attr = ['class', 'href', 'style']
@@ -34,8 +37,15 @@ bleached_attr = ['class', 'href', 'style']
 @api_view(['GET'])
 def get_companies(request):
     try:
+        
+        if cache.get('companies'):
+            filterset = cache.get('companies')
+        else:
+            filterset = Company.objects.all()
+            cache.set('companies', filterset)
+            
         order = "-name" if request.GET.get('orderBy') == 'desc' else "name"
-        filterset = CompanyFilter(request.GET, queryset=Company.objects.all().order_by(order))   
+        filterset = CompanyFilter(request.GET, queryset=filterset.order_by(order))
         total = filterset.qs.count()
         per_page = 50
         paginator = PageNumberPagination()
