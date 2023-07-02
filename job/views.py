@@ -47,46 +47,46 @@ def jobs(request):
 @api_view(['GET'])
 def homeJobs(request):
     try:
-        order = "-created_date"
-        filterset = JobsFilter(request.GET, queryset=Job.objects.all().order_by(order))
-        count = filterset.qs.count()
-        resPerPage = 50
-        paginator = PageNumberPagination()
-        paginator.page_size = resPerPage
-        queryset = paginator.paginate_queryset(filterset.qs, request)
-        serializer = BaseJobSerializer(queryset, many=True,  context={'request': request})
+        # order = "-created_date"
+        # filterset = JobsFilter(request.GET, queryset=Job.objects.all().order_by(order))
+        # count = filterset.qs.count()
+        # resPerPage = 50
+        # paginator = PageNumberPagination()
+        # paginator.page_size = resPerPage
+        # queryset = paginator.paginate_queryset(filterset.qs, request)
+        # serializer = BaseJobSerializer(queryset, many=True,  context={'request': request})
         
 
-        return Response({
-            "count": count,
-            "resPerPage": resPerPage,
-            'jobs': serializer.data
-        }, status=status.HTTP_200_OK)
-        # if cache.get('home_featured'):
-        #     featured = cache.get('home_featured')
-        # else:
-        #     featured = BaseJobSerializer(Job.objects.filter(featured=True), many=True, context={'request': request}).data
-        #     cache.set('home_featured', featured)
-        # if cache.get('home_recent'):
-        #     recent = cache.get('home_recent')
-        # else:
-        #     recent = BaseJobSerializer(Job.objects.filter(featured=False), many=True, context={'request': request}).data
-        #     cache.set('home_recent', recent)
-        # if cache.get('home_companies'):
-        #     companies = cache.get('home_companies')
-        # else:
-        #     companies = BaseCompanySerializer(Company.objects.all(), many=True).data 
-        #     cache.set('home_companies', companies)
-
-        # is_complete = None
-        # if CustomUserModel.objects.filter(id=request.user.id).exists():
-        #     is_complete = CustomUserModel.objects.filter(id=request.user.id).first().is_complete
         # return Response({
-        #     "featured": featured,
-        #     "recent": recent,
-        #     "companies": companies,
-        #     'is_complete': is_complete
+        #     "count": count,
+        #     "resPerPage": resPerPage,
+        #     'jobs': serializer.data
         # }, status=status.HTTP_200_OK)
+        if cache.get('home_featured'):
+            featured = cache.get('home_featured')
+        else:
+            featured = BaseJobSerializer(Job.objects.filter(featured=True), many=True, context={'request': request}).data
+            cache.set('home_featured', featured)
+        if cache.get('home_recent'):
+            recent = cache.get('home_recent')
+        else:
+            recent = BaseJobSerializer(Job.objects.filter(featured=False), many=True, context={'request': request}).data
+            cache.set('home_recent', recent)
+        if cache.get('home_companies'):
+            companies = cache.get('home_companies')
+        else:
+            companies = BaseCompanySerializer(Company.objects.all(), many=True).data 
+            cache.set('home_companies', companies)
+
+        is_complete = None
+        if CustomUserModel.objects.filter(id=request.user.id).exists():
+            is_complete = CustomUserModel.objects.filter(id=request.user.id).first().is_complete
+        return Response({
+            "featured": featured,
+            "recent": recent,
+            "companies": companies,
+            'is_complete': is_complete
+        }, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({

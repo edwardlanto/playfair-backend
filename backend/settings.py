@@ -64,8 +64,10 @@ INSTALLED_APPS = [
     'message.apps.MessageConfig',
     'payment.apps.PaymentConfig',
     'gig.apps.GigConfig',
+    'chat.apps.ChatConfig',
     'django_rest_passwordreset',
     'sslserver',
+    'channels',
     "django_extensions",
 ]
 
@@ -175,7 +177,9 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT')
     }
 }
-# FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024
+# ASGI_APPLICATION = "chat.routing.application" #routing.py will handle the ASGI
+ASGI_APPLICATION = "chat.asgi.application"
+
 CACHE_TTL = 60 * 1500
 
 CACHES = {
@@ -187,6 +191,14 @@ CACHES = {
         },
     }
 }
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+        }
+    }
+
+
 # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 # SESSION_CACHE_ALIAS = "default"
 
