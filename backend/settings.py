@@ -163,7 +163,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -178,7 +177,7 @@ DATABASES = {
     }
 }
 # ASGI_APPLICATION = "chat.routing.application" #routing.py will handle the ASGI
-ASGI_APPLICATION = "chat.asgi.application"
+# ASGI_APPLICATION = "chat.asgi.application"
 
 CACHE_TTL = 60 * 1500
 

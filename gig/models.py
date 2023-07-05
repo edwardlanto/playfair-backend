@@ -68,3 +68,6 @@ class Gig(models.Model):
     state = models.JSONField(null=True, blank=True)
     min_rate = models.CharField(max_length=255, null=True, blank=True)
     max_rate = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        db_table = "gig"

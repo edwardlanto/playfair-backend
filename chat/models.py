@@ -8,6 +8,9 @@ class Conversation(models.Model):
     last_message = models.CharField(max_length=128, blank=True)
     last_message_user = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, related_name="last_message_user", null=True)
 
+    class Meta:
+        db_table = "conversation"
+
 class ConversationMember(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation_id = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="conversation_member_id")
@@ -16,6 +19,9 @@ class ConversationMember(models.Model):
     left_date = models.DateTimeField(auto_now_add=True)
     online = models.ManyToManyField(to=CustomUserModel, blank=True)
 
+    class Meta:
+        db_table = "conversation_member"
+
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation_id = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
@@ -23,3 +29,6 @@ class Message(models.Model):
     content = models.CharField()
     created_date = models.DateTimeField(auto_now_add=True)
     # read = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "message"

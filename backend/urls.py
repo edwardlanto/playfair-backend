@@ -9,8 +9,6 @@ urlpatterns = [
     path("api/accounts/", include("playfairauth.urls")),
     path("api/candidates/", include("candidate.urls")),
     path("api/payments/", include("payment.urls")),
-    path('api/', include('gig.urls')),
-    re_path(r'^$', home, name='home')
-
+    path('api/gigs', include('gig.urls')),
 
 ]
