@@ -1,12 +1,14 @@
 from django.db import models
 import uuid
 from playfairauth.models import CustomUserModel
+from contract.models import Contract
 
 class Conversation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128, blank=True)
     last_message = models.CharField(max_length=128, blank=True)
     last_message_user = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, related_name="last_message_user", null=True)
+    contract = models.ForeignKey(Contract, on_delete=models.SET_NULL, related_name="last_message_user", null=True)
 
     class Meta:
         db_table = "conversation"
