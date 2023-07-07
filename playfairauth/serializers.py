@@ -34,6 +34,18 @@ class BaseUserProfileSerializer(serializers.ModelSerializer):
             'id'
         )
 
+class BaseUserModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUserModel
+        fields = (
+            "id",
+            "username",
+            "account_type",
+            "first_name",
+            "last_name"
+        )
+
 class FullUserProfileSerializer(serializers.ModelSerializer):
     is_complete = serializers.SerializerMethodField()
 

@@ -54,8 +54,8 @@ class Contract(models.Model):
         default="pending"
     )
     amount = models.IntegerField(null=True)
-    seller = models.OneToOneField(CustomUserModel, on_delete=models.SET_NULL, null=True, related_name="contract_seller")
-    buyer = models.OneToOneField(CustomUserModel, on_delete=models.SET_NULL, null=True, related_name="contract_buyer")
+    seller = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, null=True, related_name="contract_seller")
+    buyer = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, null=True, related_name="contract_buyer")
     quantity = models.IntegerField(default=1)
     image = models.FileField(null=True, blank=True)
     schedule = models.DateTimeField(default=timezone.now)

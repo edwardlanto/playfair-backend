@@ -227,6 +227,23 @@ def get_logo(request):
             return Response({'logo': userprofile.logo.url}, status=status.HTTP_200_OK)
         
 @api_view(["GET"])
+def get_me(request):
+    try:
+        print(request.user)
+        user = CustomUserModel.objects.get(email=request.user)
+
+        if user == None:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'user': BaseUserModelSerializer(user).data
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def resume(request):
     try:

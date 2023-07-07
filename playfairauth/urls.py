@@ -12,6 +12,7 @@ urlpatterns = [
     path('refresh-token/', TokenRefreshView.as_view(), name='refresh_token'),
     path('register-candidate/', CandidateView.as_view()),
     path('logo/', views.get_logo, name='get-logo'),
+    path('get-me/', views.get_me, name='get-me'),
     path('register-company/credentials/', EmployerView.as_view()),
     path('register-candidate/credentials/', view=views.register_candidate_credentials, name="register-candidate-credentials"),
     path('profile/me/', views.me, name='me'),
