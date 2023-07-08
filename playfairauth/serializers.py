@@ -46,6 +46,16 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
             "last_name"
         )
 
+class ChatModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUserModel
+        fields = (
+            "username",
+            "image"
+        )
+
+
 class FullUserProfileSerializer(serializers.ModelSerializer):
     is_complete = serializers.SerializerMethodField()
 

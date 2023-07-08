@@ -74,6 +74,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
   account_type = models.CharField(max_length=100, default="candidate")
   is_staff  = models.BooleanField(default = False)
   is_superuser = models.BooleanField(default = False)
+  image = models.FileField(null=True)
   is_complete = models.BooleanField(default = False)
   objects = CustomUserModelManager()
 

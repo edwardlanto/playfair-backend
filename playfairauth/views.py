@@ -235,7 +235,7 @@ def get_me(request):
         if user == None:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         return Response({
-            'user': BaseUserModelSerializer(user).data
+            'user': ChatModelSerializer(user).data
         }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({

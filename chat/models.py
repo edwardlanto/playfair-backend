@@ -30,6 +30,7 @@ class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation_id = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages", null=True)
     from_user = models.ForeignKey(CustomUserModel, on_delete=models.CASCADE, related_name="from_user", null=True)
+    # from_username = models.CharField(min_length=1)
     content = models.CharField(null=True)
     created_date = models.DateTimeField(auto_now_add=True)
 
