@@ -214,11 +214,9 @@ def me(request):
 def get_logo(request):
     user = request.user
     if(user.groups.filter(name='company').exists()):
-        company = Company.objects.filter(user=request.user).first()
-        if not company.logo:
-            return Response({'logo': None}, status=status.HTTP_200_OK)
-        else:
-            return Response({'logo': company.logo.url}, status=status.HTTP_200_OK)
+        user = CustomUserModel.objects.filter(email=user.email).first()
+        return Response({'logo': user.image.url}, status=status.HTTP_200_OK)
+            
     if(user.groups.filter(name='candidate').exists()):
         userprofile = CustomUserProfile.objects.filter(user=request.user).first()
         if not userprofile.logo:

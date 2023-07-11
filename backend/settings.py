@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'candidate.apps.CandidateConfig',
     'message.apps.MessageConfig',
     'payment.apps.PaymentConfig',
-    'gig.apps.GigConfig',
     'contract.apps.ContractConfig',
     'chat.apps.ChatConfig',
     'django_rest_passwordreset',

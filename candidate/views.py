@@ -1,4 +1,4 @@
-from django.shortcuts import render
+import bleach
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import SavedJob, AppliedJob, SavedCompany
@@ -13,7 +13,7 @@ from playfairauth.models import CustomUserProfile, CustomUserModel
 from playfairauth.serializers import CustomUserSerializer, FullCustomUserSerializer
 from django.db import transaction
 from .serializers import AppliedJobSerializer, CandidateSavedJobSerializer
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.hashers import make_password
 from message.models import Message
@@ -21,8 +21,20 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from .filters import CandidateFilter
 from rest_framework.pagination import PageNumberPagination
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import Group
+
+bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
+bleached_attr = ['class', 'href', 'style']
+
+def is_candidate(user):
+    if(user.groups.filter(name='candidate').exists()):
+        return True
+    else:
+        return Response({"message": "Only candidates can access this route."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
 
 @api_view(['POST'])
+@user_passes_test(is_candidate)
 @permission_classes([IsAuthenticated])
 def save_job(request, pk):
     try:
@@ -68,6 +80,67 @@ def save_company(request, pk):
         )
         savedCompany.save()
         return Response({ "message": "Successfully saved company." }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({ "error": str(e) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@user_passes_test(is_candidate)
+def upgrade_to_company(request):
+    try:
+        data = request.data
+        user = request.user
+        
+        if Company.objects.filter(email=bleach.clean(data['email'])).exists():
+            return Response({ "error": "Email in already in use."}, status=status.HTTP_200_OK)
+        
+        if CustomUserModel.objects.filter(email=bleach.clean(data['email'])).exists():
+            return Response({ "error": "Email in already in use."}, status=status.HTTP_200_OK)
+        
+        candidateGroup = Group.objects.get(name='candidate') 
+        companyGroup = Group.objects.get(name='company') 
+        user.groups.remove(candidateGroup)
+        companyGroup.user_set.add(user)
+        user = CustomUserModel.objects.filter(email=user.email).first()
+        company = Company.objects.create(
+            name = bleach.clean(data['name']),
+            description = bleach.clean(data['description'], attributes=bleached_attr, tags=bleached_tags),
+            email = bleach.clean(data['email']),
+            phone = bleach.clean(data['phone']),
+            industry = bleach.clean(data['industry']),
+            address = bleach.clean(data['address']),
+            country = bleach.clean(data['country']),
+            founded_in = bleach.clean(data['founded_in']) if data['founded_in'] else datetime.today().year,
+            website = data['website'],
+            size = int(data['size']),
+            state = bleach.clean(data['state']),
+            city = bleach.clean(data['city']),
+            lat = float(data['lat']),
+            long = float(data['long']),
+            facebook = bleach.clean(data['facebook']),
+            twitter = bleach.clean(data['twitter']),
+            instagram = bleach.clean(data['instagram']),
+            linkedIn = bleach.clean(data['linkedIn']),
+        )
+
+        company.save()
+        user.company = company.id
+        user.email = bleach.clean(data['email'])
+        user.save()
+        
+        return Response({ "message": "Successfully saved company.", "company": company.id }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({ "error": str(e) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+# @user_passes_test(is_candidate)
+def upgrade_to_company_logo(request):
+    try:
+        user = CustomUserModel.objects.filter(email=request.user.email).first()
+        user.image = request.FILES['logo']
+        user.save()
+        return Response({ "message": "Successfully added logo" }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({ "error": str(e) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

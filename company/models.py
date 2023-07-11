@@ -14,7 +14,7 @@ class Company(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=200, null=True)
     description = RichTextField(blank=True, null=True)
-    email = models.EmailField(null=True)
+    email = models.EmailField(null=True, unique=True, error_messages={'unique': u"This email has already been registered."})
     industry = models.CharField(max_length=100, default=None, null=True)
     phone = models.CharField(max_length=20, null=True)
     postal_code = models.CharField(max_length=20, null=True)
@@ -23,7 +23,7 @@ class Company(models.Model):
     country_code = models.CharField(max_length=6, null=True)
     city = models.CharField(max_length=100, null=True)
     state = models.CharField(max_length=100, null=True)
-    founded_in = models.CharField(max_length=100, default=2023, null=True)
+    founded_in = models.IntegerField(default=2023, null=True)
     website = models.CharField(max_length=100, null=True, default=None)
     lat = models.DecimalField(max_digits=15, decimal_places=8, null=True)
     long = models.DecimalField(max_digits=15, decimal_places=8, null=True)
@@ -47,6 +47,7 @@ class Company(models.Model):
     
     def __str__(self):
         return self.name
+    
 
 class Logo(models.Model):
     user = models.OneToOneField('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null=True)

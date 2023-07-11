@@ -20,18 +20,19 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 
-    #   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # conversation_id = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages", null=True)
-    # from_user = models.ForeignKey(CustomUserModel, on_delete=models.CASCADE, related_name="from_user", null=True)
-    # content = models.CharField(null=True)
-    # created_date = models.DateTimeField(auto_now_add=True)
 @api_view(['GET'])
 def get_conversation(request, pk):
     try:
-        conversation = Conversation.objects.get(id=pk)
-        conversation = ConversationSerializer(conversation).data
-        messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
-        # messages = MessageSerializer(messages).data
+        if cache.get("conversation-{pk}"):
+            conversation = cache.get("conversation-{pk}")
+        else:
+            conversation = ConversationSerializer(Conversation.objects.get(id=pk)).data
+            cache.set("conversation-{pk}", conversation)
+        if cache.get("messages-{pk}"):
+            messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
+        else:
+            messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
+            cache.set("messages-{pk}", conversation)
         return Response({
             "conversation": conversation,
             "messages": MessageSerializer(messages, many=True).data
@@ -45,11 +46,10 @@ def create_message(request):
         conversation = Conversation.objects.get(id=request.data['conversation'])
         message = Message.objects.create(
             conversation_id=conversation,
-            content=request.data['content'],
+            content=bleach.clean(request.data['content']),
             from_user=request.user
         )
         message.save()
-        # messages = MessageSerializer(messages).data
         return Response({
             "message": 'success'
         },status=status.HTTP_200_OK)

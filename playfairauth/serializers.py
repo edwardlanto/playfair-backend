@@ -7,6 +7,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
+import bleach
+from django.forms.models import model_to_dict
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -155,7 +157,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 try:
                     data['provider'] = 'credentials'
                     data['user'] = CustomUserSerializer(user).data
-                    data["account_type"] = user.account_type
+                    print(user.groups.all())
+                    data["account_type"] = list(user.groups.all().values_list('name', flat=True))
                     data["pf_refresh_token"]: str(refresh)
                     data['pf_access_token']: access_token
                     return data
