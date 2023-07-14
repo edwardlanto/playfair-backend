@@ -40,3 +40,8 @@ class BaseCompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = ('name', 'logo', 'id', 'uuid', 'country_code',
         'country', 'city', 'state', 'industry', 'jobs_available', 'is_saved', 'website', 'address', 'postal_code')
+
+class MinCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ('name', 'id')

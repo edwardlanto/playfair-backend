@@ -48,6 +48,20 @@ class BaseUserModelSerializer(serializers.ModelSerializer):
             "last_name"
         )
 
+class LogoUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUserModel
+        fields = (
+            "id",
+            "username",
+            "account_type",
+            "first_name",
+            "last_name",
+            "image"
+        )
+
+
 class ChatModelSerializer(serializers.ModelSerializer):
 
     class Meta:

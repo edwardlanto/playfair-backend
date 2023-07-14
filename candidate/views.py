@@ -68,6 +68,7 @@ def unsave_job(request, pk):
         return Response({ "error": str(e) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['POST'])
+@transaction.atomic
 @permission_classes([IsAuthenticated])
 def save_company(request, pk):
     try:
@@ -85,50 +86,52 @@ def save_company(request, pk):
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@user_passes_test(is_candidate)
+@transaction.atomic
+# @user_passes_test(is_candidate)
 def upgrade_to_company(request):
     try:
-        data = request.data
-        user = request.user
-        
-        if Company.objects.filter(email=bleach.clean(data['email'])).exists():
-            return Response({ "error": "Email in already in use."}, status=status.HTTP_200_OK)
-        
-        if CustomUserModel.objects.filter(email=bleach.clean(data['email'])).exists():
-            return Response({ "error": "Email in already in use."}, status=status.HTTP_200_OK)
-        
-        candidateGroup = Group.objects.get(name='candidate') 
-        companyGroup = Group.objects.get(name='company') 
-        user.groups.remove(candidateGroup)
-        companyGroup.user_set.add(user)
-        user = CustomUserModel.objects.filter(email=user.email).first()
-        company = Company.objects.create(
-            name = bleach.clean(data['name']),
-            description = bleach.clean(data['description'], attributes=bleached_attr, tags=bleached_tags),
-            email = bleach.clean(data['email']),
-            phone = bleach.clean(data['phone']),
-            industry = bleach.clean(data['industry']),
-            address = bleach.clean(data['address']),
-            country = bleach.clean(data['country']),
-            founded_in = bleach.clean(data['founded_in']) if data['founded_in'] else datetime.today().year,
-            website = data['website'],
-            size = int(data['size']),
-            state = bleach.clean(data['state']),
-            city = bleach.clean(data['city']),
-            lat = float(data['lat']),
-            long = float(data['long']),
-            facebook = bleach.clean(data['facebook']),
-            twitter = bleach.clean(data['twitter']),
-            instagram = bleach.clean(data['instagram']),
-            linkedIn = bleach.clean(data['linkedIn']),
-        )
+        with transaction.atomic():  
+            data = request.data
+            user = request.user
+            if Company.objects.filter(email=bleach.clean(data['email'])).exists():
+                return Response({ "error": "Company email is already in use."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if CustomUserModel.objects.filter(email=bleach.clean(data['email'])).exists():
+                return Response({ "error": "Email in already in use."}, status=status.HTTP_400_BAD_REQUEST)
 
-        company.save()
-        user.company = company.id
-        user.email = bleach.clean(data['email'])
-        user.save()
-        
-        return Response({ "message": "Successfully saved company.", "company": company.id }, status=status.HTTP_200_OK)
+            candidateGroup = Group.objects.get(name='candidate')
+            companyGroup = Group.objects.get(name='company') 
+            user.groups.remove(candidateGroup)
+            companyGroup.user_set.add(user)
+            user = CustomUserModel.objects.filter(email=user).first()
+            company = Company.objects.create(
+                name = bleach.clean(data['name']),
+                description = bleach.clean(data['description'], attributes=bleached_attr, tags=bleached_tags),
+                email = bleach.clean(data['email']),
+                user = user,
+                phone = bleach.clean(data['phone']),
+                industry = bleach.clean(data['industry']),
+                address = bleach.clean(data['address']),
+                country = bleach.clean(data['country']),
+                founded_in = bleach.clean(data['founded_in']) if data['founded_in'] else datetime.today().year,
+                website = data['website'],
+                size = int(data['size']),
+                state = bleach.clean(data['state']),
+                city = bleach.clean(data['city']),
+                lat = float(data['lat']),
+                long = float(data['long']),
+                facebook = bleach.clean(data['facebook']),
+                twitter = bleach.clean(data['twitter']),
+                instagram = bleach.clean(data['instagram']),
+                linkedIn = bleach.clean(data['linkedIn']),
+            )
+
+            company.save()
+            user.company = company
+            user.email = bleach.clean(data['email'])
+            user.save()
+            
+            return Response({ "message": "Successfully saved company.", "company": company.id }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({ "error": str(e) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

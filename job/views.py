@@ -28,7 +28,7 @@ from django.conf import settings
 CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 
 @api_view(['GET'])
-def jobs(request):
+def index(request):
     order = "-created_date"
     filterset = JobsFilter(request.GET, queryset=Job.objects.all().order_by(order))
     count = filterset.qs.count()

@@ -1,13 +1,21 @@
 from django.db import models
 from job.models import Job
+from contract.models import Contract
 from ckeditor.fields import RichTextField
 from company.models import Company
 import uuid
+
 class SavedJob(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null = True)
     saved = models.BooleanField(default=True, auto_created=True)
-    createdAt = models.DateTimeField(auto_now_add=True, null=True)
+    created_date = models.DateTimeField(auto_now_add=True, null=True)
+
+class SavedContract(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null = True)
+    saved = models.BooleanField(default=True, auto_created=True)
+    created_date = models.DateTimeField(auto_now_add=True, null=True)
 
 class SavedCompany(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
