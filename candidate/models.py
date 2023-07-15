@@ -36,7 +36,14 @@ class AppliedJob(models.Model):
     is_approved = models.BooleanField(null=True, default=False)
     is_active = models.BooleanField(null=True, default=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True)
-    # userprofile = models.JSONField(null=True, blank=True)
+
+class AppliedContract(models.Model):
+    id = models.CharField(max_length = 50, default = uuid.uuid4, primary_key = True, editable = False)
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null = True)
+    applied_date = models.DateTimeField(auto_now_add=True, null=True)
+    is_approved = models.BooleanField(null=True, default=False)
+    is_active = models.BooleanField(null=True, default=True)
 
 class CoverLetter(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)

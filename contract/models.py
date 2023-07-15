@@ -1,19 +1,12 @@
 from django.db import models
-import datetime
 from django.db import models
 from playfairauth.models import CustomUserModel
-from django.contrib.postgres.fields import ArrayField
-from datetime import date
 from ckeditor.fields import RichTextField
 from company.models import Company
 from job.models import Industry
-import datetime
 from django.utils import timezone
 from django.core.validators import (
-    MaxLengthValidator,
-    MaxValueValidator,
     MinLengthValidator,
-    MinValueValidator,
 )
 import uuid
 
@@ -76,9 +69,6 @@ class Contract(models.Model):
     lat = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     long = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     is_active = models.BooleanField(default=True)
-
-
-
 
     class Meta:
         db_table = "contract"

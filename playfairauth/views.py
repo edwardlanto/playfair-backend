@@ -200,7 +200,7 @@ def me(request):
             user = CustomUserModel.objects.filter(id=request.user.id).first()
             profile = CustomUserProfile.objects.filter(user=user).first()
             return Response({
-                'userprofile': FullUserProfileSerializer(profile).data,
+                'profile': FullUserProfileSerializer(profile).data,
                 'user': FullCustomUserSerializer(user).data
             }, status=status.HTTP_200_OK)
     

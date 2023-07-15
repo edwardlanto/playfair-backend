@@ -1,29 +1,17 @@
-import datetime
 import bleach
-from django.utils import timezone
-from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Avg, Min, Max, Count
-from rest_framework.pagination import PageNumberPagination
-from company.serializers import BaseCompanySerializer
-from .models import Payment
-from candidate.models import AppliedJob
-from candidate.models import SavedJob
-from candidate.serializers import AppliedJobSerializer
-from django.shortcuts import get_object_or_404
-from playfairauth.models import CustomUserModel
 from company.models import Company
+from playfairauth.models import Contractor
 from rest_framework.permissions import IsAuthenticated
-from django.core import serializers
-from django.http import JsonResponse
-from django.core import serializers
 from django.db import transaction
-from datetime import date
+from playfairauth.models import CustomUserProfile
 import stripe
 import os
-import asyncio
+from geopy.geocoders import Nominatim
+import geocoder
+import json
 
 stripe.api_key = os.environ.get("STRIPE_TEST_API")
 
@@ -246,3 +234,129 @@ def attach_company_file(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_contractor_bank_account(request):
+    try:
+        with transaction.atomic():
+            data = request.data
+            geolocator = Nominatim(user_agent="PlayfairGeoPy")
+            location = geolocator.reverse(data['lat'] + "," + data['lng'])
+            address = location.raw['address']
+            f = open('data/stripe-currencies.json')
+            curreny_json = json.load(f)
+            currency_obj = [x for x in curreny_json['json_array'] if x['countryCode'].lower() == address['country_code'].lower()]
+
+            if len(currency_obj) == 0:
+                currency = "CAD"
+            else:
+                currency = currency_obj[0]['currencyCode'].upper()
+
+            instance = stripe.Token.create(
+                bank_account={
+                    "country": bleach.clean(address['country_code']),
+                    "currency": bleach.clean(currency),
+                    "account_holder_name": bleach.clean(data['account_holder_name']),
+                    "account_holder_type": "individual",
+                    "routing_number": bleach.clean(data['routing_number']),
+                    "account_number": bleach.clean(data['account_number']),
+                },
+            )
+
+            if(instance):
+                contractor = Contractor.objects.create(
+                    user = request.user,
+                    stripe_bank_token = instance.id
+                )
+
+                contractor.save()
+
+                profile = CustomUserProfile.objects.filter(user=request.user).first()
+                profile.country_code = address['country_code'].upper()
+                profile.save()
+
+            return Response({"instance": instance}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_contractor_account(request):
+    try:
+        # with transaction.atomic():
+            data = request.data
+            user = request.user
+            print(data)
+            print("RAN FILE")
+            dob_arr = data['dob'].split('/')
+            geolocator = Nominatim(user_agent="PlayfairGeoPy")
+            location = geolocator.reverse(data['lat'] + "," + data['lng'])
+            address = location.raw['address']
+            profile = CustomUserProfile.objects.filter(user=request.user).first()
+            contractor = Contractor.objects.filter(user=user).first()
+            instance = stripe.Account.create(
+                country=profile.country_code,
+                type="custom",
+                external_account = data['external_account'],
+                business_type="individual",
+                capabilities={
+                    "card_payments": {"requested": True},
+                    "transfers": {"requested": True},
+                },
+                business_profile = {
+                    "mcc": 7623,
+                    "url": "",
+                },
+                tos_acceptance = {
+                    "date": data['created'],
+                    "ip": data['ip']
+            },
+                individual={
+                    "first_name": bleach.clean(user.first_name),
+                    "last_name": bleach.clean(user.last_name),
+                    "phone": data['phone'],
+                    "id_number": data['id_number'],
+                    "dob": {
+                        'day': int(dob_arr[2]),
+                        'month': int(dob_arr[1]),
+                        'year': int(dob_arr[0]),
+                    },
+                    "address": {
+                        "line1": bleach.clean(data['line1']),
+                        "city": bleach.clean(address['city']),
+                        "state": bleach.clean(address['state']),
+                        "postal_code": bleach.clean(address['postcode'])
+                    },
+                },
+            )
+
+            if(instance):
+                print('stripeid', instance.id)
+                contractor.stripe_account = instance.id
+                contractor.save()
+                user = request.user
+                return Response({"instance": instance, "message": "Person created"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(str(e))
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['POST'])
+def verify_account(request):
+    user = request.user
+    created = Contractor.objects.filter(user=user).first()
+    created = created.stripe_account != None
+    return Response({'account_created': created},status=status.HTTP_200_OK)
+    
+@api_view(['POST'])
+def address(request):
+    data = request.data
+    # geolocator = Nominatim(user_agent="PlayfairGeoPy")
+    # location = geolocator.reverse(data['lat'] + "," + data['lng'])
+    # address = location.raw['address']
+    # print(address)
+
+    g = geocoder.canadapost('7231 Sherbrooke St, Vancouver, BC V5X 4E3, Canada', key="887e5a7cb633632e:f524cc3fd1d9300fea322f")
+    print(g.postal)
+    return Response()

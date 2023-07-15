@@ -92,7 +92,8 @@ class CustomUserProfile(models.Model):
     postal_code = models.CharField(max_length=10, default="", null=True)
     bio = RichTextField(null=True, default="")
     phone = PhoneField(blank=True, help_text='Contact phone number')
-    country = models.JSONField(null=True)
+    country = models.CharField(null=True)
+    country_code = models.CharField(max_length=10, default="", null=True)
     city = models.JSONField(null=True)
     state = models.JSONField(null=True)
     website = models.URLField(max_length = 200, default="", null=True)
@@ -151,3 +152,17 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 #     if created:
 #         company = Company(user=user)
 #         company.save()
+
+
+class Contractor(models.Model):
+  id = models.CharField(max_length = 50, default = uuid4, primary_key = True, editable = False)
+  user = models.ForeignKey("playfairauth.CustomUserModel", related_name="contractor", on_delete=models.CASCADE)
+  stripe_account = models.CharField(max_length=100, null=True, blank=True)
+  stripe_bank_token = models.CharField(max_length=100, null=True, blank=True)
+  stripe_person = models.CharField(max_length=50, null=True, blank=True)
+  stripe_id_front = models.CharField(max_length=50, null=True, blank=True)
+  stripe_id_back = models.CharField(max_length=50, null=True, blank=True)
+  
+  class Meta:
+    verbose_name = "Contractor"
+    db_table = "contractor"

@@ -1,0 +1,324 @@
+{ "json_array" : [
+  {
+    "currencyCode": "cad",
+    "currencyName": "Canadian Dollar",
+    "currencySymbol": "$",
+    "country": "Canada",
+    "countryCode": "CA"
+  },
+  {
+    "currencyCode": "usd",
+    "currencyName": "United States Dollar",
+    "currencySymbol": "$",
+    "country": "United States",
+    "countryCode": "US"
+  },
+  {
+    "currencyCode": "gbp",
+    "currencyName": "British Pound",
+    "currencySymbol": "£",
+    "country": "United Kingdom",
+    "countryCode": "GB"
+  },
+  {
+    "currencyCode": "aud",
+    "currencyName": "Australian Dollar",
+    "currencySymbol": "$",
+    "country": "Australia",
+    "countryCode": "AU"
+  },
+  {
+    "currencyCode": "at",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Austria",
+    "countryCode": "AT"
+  },
+  {
+    "currencyCode": "be",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Belgium",
+    "countryCode": "BE"
+  },
+  {
+    "currencyCode": "brl",
+    "currencyName": "Brazilian Real",
+    "currencySymbol": "R$",
+    "country": "Brazil",
+    "countryCode": "BR"
+  },
+  {
+    "currencyCode": "bg",
+    "currencyName": "Bulgarian Lev",
+    "currencySymbol": "лв",
+    "country": "Bulgaria",
+    "countryCode": "BG"
+  },
+  {
+    "currencyCode": "hr",
+    "currencyName": "Croatian Kuna",
+    "currencySymbol": "kn",
+    "country": "Croatia",
+    "countryCode": "HR"
+  },
+  {
+    "currencyCode": "cy",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Cyprus",
+    "countryCode": "CY"
+  },
+  {
+    "currencyCode": "czk",
+    "currencyName": "Czech Koruna",
+    "currencySymbol": "Kč",
+    "country": "Czech Republic",
+    "countryCode": "CZ"
+  },
+  {
+    "currencyCode": "dkk",
+    "currencyName": "Danish Krone",
+    "currencySymbol": "kr",
+    "country": "Denmark",
+    "countryCode": "DK"
+  },
+  {
+    "currencyCode": "ee",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Estonia",
+    "countryCode": "EE"
+  },
+  {
+    "currencyCode": "eur",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Finland",
+    "countryCode": "FI"
+  },
+  {
+    "currencyCode": "fr",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "France",
+    "countryCode": "FR"
+  },
+  {
+    "currencyCode": "de",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Germany",
+    "countryCode": "DE"
+  },
+  {
+    "currencyCode": "gi",
+    "currencyName": "Gibraltar Pound",
+    "currencySymbol": "£",
+    "country": "Gibraltar",
+    "countryCode": "GI"
+  },
+  {
+    "currencyCode": "gr",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Greece",
+    "countryCode": "GR"
+  },
+  {
+    "currencyCode": "hk",
+    "currencyName": "Hong Kong Dollar",
+    "currencySymbol": "HK$",
+    "country": "Hong Kong",
+    "countryCode": "HK"
+  },
+  {
+    "currencyCode": "hu",
+    "currencyName": "Hungarian Forint",
+    "currencySymbol": "Ft",
+    "country": "Hungary",
+    "countryCode": "HU"
+  },
+  {
+    "currencyCode": "inr",
+    "currencyName": "Indian Rupee",
+    "currencySymbol": "₹",
+    "country": "India",
+    "countryCode": "IN"
+  },
+  {
+    "currencyCode": "idr",
+    "currencyName": "Indonesian Rupiah",
+    "currencySymbol": "Rp",
+    "country": "Indonesia",
+    "countryCode": "ID"
+  },
+  {
+    "currencyCode": "ie",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Ireland",
+    "countryCode": "IE"
+  },
+  {
+    "currencyCode": "it",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Italy",
+    "countryCode": "IT"
+  },
+  {
+    "currencyCode": "jp",
+    "currencyName": "Japanese Yen",
+    "currencySymbol": "¥",
+    "country": "Japan",
+    "countryCode": "JP"
+  },
+  {
+    "currencyCode": "lv",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Latvia",
+    "countryCode": "LV"
+  },
+  {
+    "currencyCode": "li",
+    "currencyName": "Swiss Franc",
+    "currencySymbol": "Fr",
+    "country": "Liechtenstein",
+    "countryCode": "LI"
+  },
+  {
+    "currencyCode": "lt",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Lithuania",
+    "countryCode": "LT"
+  },
+  {
+    "currencyCode": "lu",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Luxembourg",
+    "countryCode": "LU"
+  },
+  {
+    "currencyCode": "myr",
+    "currencyName": "Malaysian Ringgit",
+    "currencySymbol": "RM",
+    "country": "Malaysia",
+    "countryCode": "MY"
+  },
+  {
+    "currencyCode": "mt",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Malta",
+    "countryCode": "MT"
+  },
+  {
+    "currencyCode": "mxn",
+    "currencyName": "Mexican Peso",
+    "currencySymbol": "$",
+    "country": "Mexico",
+    "countryCode": "MX"
+  },
+  {
+    "currencyCode": "nl",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Netherlands",
+    "countryCode": "NL"
+  },
+  {
+    "currencyCode": "nzd",
+    "currencyName": "New Zealand Dollar",
+    "currencySymbol": "$",
+    "country": "New Zealand",
+    "countryCode": "NZ"
+  },
+  {
+    "currencyCode": "no",
+    "currencyName": "Norwegian Krone",
+    "currencySymbol": "kr",
+    "country": "Norway",
+    "countryCode": "NO"
+  },
+  {
+    "currencyCode": "pln",
+    "currencyName": "Polish Złoty",
+    "currencySymbol": "zł",
+    "country": "Poland",
+    "countryCode": "PL"
+  },
+  {
+    "currencyCode": "pt",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Portugal",
+    "countryCode": "PT"
+  },
+  {
+    "currencyCode": "ro",
+    "currencyName": "Romanian Leu",
+    "currencySymbol": "lei",
+    "country": "Romania",
+    "countryCode": "RO"
+  },
+  {
+    "currencyCode": "sgd",
+    "currencyName": "Singapore Dollar",
+    "currencySymbol": "S$",
+    "country": "Singapore",
+    "countryCode": "SG"
+  },
+  {
+    "currencyCode": "sk",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Slovakia",
+    "countryCode": "SK"
+  },
+  {
+    "currencyCode": "si",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Slovenia",
+    "countryCode": "SI"
+  },
+  {
+    "currencyCode": "es",
+    "currencyName": "Euro",
+    "currencySymbol": "€",
+    "country": "Spain",
+    "countryCode": "ES"
+  },
+  {
+    "currencyCode": "se",
+    "currencyName": "Swedish Krona",
+    "currencySymbol": "kr",
+    "country": "Sweden",
+    "countryCode": "SE"
+  },
+  {
+    "currencyCode": "chf",
+    "currencyName": "Swiss Franc",
+    "currencySymbol": "Fr",
+    "country": "Switzerland",
+    "countryCode": "CH"
+  },
+  {
+    "currencyCode": "thb",
+    "currencyName": "Thai Baht",
+    "currencySymbol": "฿",
+    "country": "Thailand",
+    "countryCode": "TH"
+  },
+  {
+    "currencyCode": "ae",
+    "currencyName": "United Arab Emirates Dirham",
+    "currencySymbol": "د.إ",
+    "country": "United Arab Emirates",
+    "countryCode": "AE"
+  }
+]}
