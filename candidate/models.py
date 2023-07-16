@@ -3,6 +3,8 @@ from job.models import Job
 from contract.models import Contract
 from ckeditor.fields import RichTextField
 from company.models import Company
+from playfairauth.models import Contractor
+from playfairauth.models import CustomUserModel
 import uuid
 
 class SavedJob(models.Model):
@@ -40,10 +42,16 @@ class AppliedJob(models.Model):
 class AppliedContract(models.Model):
     id = models.CharField(max_length = 50, default = uuid.uuid4, primary_key = True, editable = False)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null = True)
+    poster = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null = True)
+    contractor = models.ForeignKey(Contractor, on_delete=models.SET_NULL, null = True)
+    coverLetter = RichTextField(blank=True, null=True) 
     applied_date = models.DateTimeField(auto_now_add=True, null=True)
     is_approved = models.BooleanField(null=True, default=False)
+    user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.CASCADE, null=True, related_name="applied_contract_user")
     is_active = models.BooleanField(null=True, default=True)
+
+    class Meta:
+        db_table = "applied_contract"
 
 class CoverLetter(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)

@@ -156,7 +156,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 
 class Contractor(models.Model):
   id = models.CharField(max_length = 50, default = uuid4, primary_key = True, editable = False)
-  user = models.ForeignKey("playfairauth.CustomUserModel", related_name="contractor", on_delete=models.CASCADE)
+  user = models.ForeignKey("playfairauth.CustomUserModel", related_name="contractor", on_delete=models.CASCADE, unique=True)
   stripe_account = models.CharField(max_length=100, null=True, blank=True)
   stripe_bank_token = models.CharField(max_length=100, null=True, blank=True)
   stripe_person = models.CharField(max_length=50, null=True, blank=True)

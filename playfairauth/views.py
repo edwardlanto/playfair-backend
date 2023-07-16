@@ -111,8 +111,8 @@ class EmployerView(generics.ListCreateAPIView):
                             industry = request.data['industry'],
                         )
                         company.save()
-                        company = Group.objects.get(name='company') 
-                        company.user_set.add(queryset.id)
+                        companyGroup = Group.objects.get(name='company') 
+                        companyGroup.user_set.add(queryset.id)
                     serializer = CustomUserSerializer(queryset, many=False)
                     return Response({ "company": serializer.data })
                 

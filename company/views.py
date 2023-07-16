@@ -187,12 +187,10 @@ def get_my_company_jobs(request):
     try:
         user = request.user
         company = Company.objects.filter(user=user).first()
-        
         jobs = Job.objects.filter(company=company.id)
         candidates = []
         
         for job in jobs:
-            print('job', job)
             candidates.append(AppliedJob.objects.filter(job=job.id).values())
 
         return Response({ "jobs": BaseJobSerializer(jobs, many=True).data, "candidates": candidates }, status=status.HTTP_200_OK)

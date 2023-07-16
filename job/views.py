@@ -38,6 +38,7 @@ def index(request):
     queryset = paginator.paginate_queryset(filterset.qs, request)
     serializer = BaseJobSerializer(queryset, many=True,  context={'request': request})
     
+ 
     return Response({
         "count": count,
         "resPerPage": resPerPage,
@@ -54,13 +55,21 @@ def homeJobs(request):
         paginator = PageNumberPagination()
         paginator.page_size = resPerPage
         queryset = paginator.paginate_queryset(filterset.qs, request)
-        serializer = BaseJobSerializer(queryset, many=True,  context={'request': request})
-        
-
+        jobs = BaseJobSerializer(queryset, many=True,  context={'request': request}).data
+        featured = BaseJobSerializer(Job.objects.filter(featured=True), many=True, context={'request': request}).data
+        recent = BaseJobSerializer(Job.objects.filter(featured=False), many=True, context={'request': request}).data
+        companies = BaseCompanySerializer(Company.objects.all(), many=True).data 
+        is_complete = None
+        if CustomUserModel.objects.filter(id=request.user.id).exists():
+            is_complete = CustomUserModel.objects.filter(id=request.user.id).first().is_complete
         return Response({
             "count": count,
             "resPerPage": resPerPage,
-            'jobs': serializer.data
+            'jobs': jobs,
+            'recent': recent,
+            'featured': featured,
+            'companies':companies,
+            'is_complete': is_complete,
         }, status=status.HTTP_200_OK)
         # if cache.get('home_featured'):
         #     featured = cache.get('home_featured')

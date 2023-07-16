@@ -1,11 +1,12 @@
 import json
 from django.http import JsonResponse
 from rest_framework import serializers
+from playfairauth.serializers import LogoUserSerializer
 from job.serializers import JobSerializer, BaseJobSerializer
 from playfairauth.models import CustomUserProfile
 from playfairauth.serializers import CustomUserSerializer, BaseUserProfileSerializer
 from .models import SavedJob
-from candidate.models import AppliedJob
+from candidate.models import AppliedJob, AppliedContract
 from company.models import Company
 from company.serializers import BaseCompanySerializer
 from playfairauth.models import CustomUserModel
@@ -51,6 +52,13 @@ class BaseAppliedJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppliedJob
         exclude = ('resume', 'coverLetter', 'job',)
+
+class BaseAppliedContractSerializer(serializers.ModelSerializer):
+    user = LogoUserSerializer()
+
+    class Meta:
+        model = AppliedContract
+        fields = ('id', 'user',)
 
 
 class CandidateSavedJobSerializer(serializers.ModelSerializer):

@@ -21,12 +21,7 @@ class ContractSerializer(serializers.ModelSerializer):
 class BaseContractSerializer(serializers.ModelSerializer):
     company = MinCompanySerializer()
     user = LogoUserSerializer()
-
-    # def get_logo(self, obj):
-    #     user = CustomUserModel.objects.filter(id=obj.user.id).first()
-    #     logo = user.image
-    #     return logo
     
     class Meta:
         model = Contract
-        fields = ('id', 'title', 'amount', 'created_date', 'user', 'company')
+        fields = ('id', 'title', 'status', 'amount', 'created_date', 'poster', 'contractor', 'user', 'company')

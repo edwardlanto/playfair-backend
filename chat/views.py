@@ -23,16 +23,18 @@ from django.core.cache import cache
 @api_view(['GET'])
 def get_conversation(request, pk):
     try:
-        if cache.get("conversation-{pk}"):
-            conversation = cache.get("conversation-{pk}")
-        else:
-            conversation = ConversationSerializer(Conversation.objects.get(id=pk)).data
-            cache.set("conversation-{pk}", conversation)
-        if cache.get("messages-{pk}"):
-            messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
-        else:
-            messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
-            cache.set("messages-{pk}", conversation)
+        conversation = ConversationSerializer(Conversation.objects.get(id=pk)).data
+        messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
+        # if cache.get("conversation-{pk}"):
+        #     conversation = cache.get("conversation-{pk}")
+        # else:
+        #     conversation = ConversationSerializer(Conversation.objects.get(id=pk)).data
+        #     cache.set("conversation-{pk}", conversation)
+        # if cache.get("messages-{pk}"):
+        #     messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
+        # else:
+        #     messages = Message.objects.filter(conversation_id=pk).order_by('created_date')
+        #     cache.set("messages-{pk}", conversation)
         return Response({
             "conversation": conversation,
             "messages": MessageSerializer(messages, many=True).data

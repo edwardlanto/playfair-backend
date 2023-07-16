@@ -12,6 +12,7 @@ import os
 from geopy.geocoders import Nominatim
 import geocoder
 import json
+from django.contrib.auth.models import Group
 
 stripe.api_key = os.environ.get("STRIPE_TEST_API")
 
@@ -332,10 +333,10 @@ def create_contractor_account(request):
             )
 
             if(instance):
-                print('stripeid', instance.id)
                 contractor.stripe_account = instance.id
                 contractor.save()
-                user = request.user
+                contractorGroup = Group.objects.get(name='contractor') 
+                contractorGroup.user_set.add(user.id)
                 return Response({"instance": instance, "message": "Person created"}, status=status.HTTP_200_OK)
     except Exception as e:
         print(str(e))

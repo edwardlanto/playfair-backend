@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from candidate.serializers import BaseAppliedContractSerializer
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from playfairauth.models import CustomUserModel
@@ -24,8 +25,11 @@ import bleach
 from django.forms.models import model_to_dict
 from django.core.cache import cache
 from django.conf import settings
+from playfairauth.models import Contractor
 from company.models import Company
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from candidate.models import AppliedContract
+
 CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
 bleached_attr = ['class', 'href', 'style']
@@ -91,7 +95,8 @@ def index(request):
         return Response({
             "count": count,
             "per_page": per_page,
-            'contracts': serializer.data
+            'contracts': serializer.data,
+            'candidates': []
         }, status=status.HTTP_200_OK)
     
     except EmptyPage:
@@ -140,7 +145,7 @@ def create(request):
             city = bleach.clean(data['city']),
             state = bleach.clean(data['state']),
             country = bleach.clean(data['country']),
-            buyer = request.user
+            poster = request.user
         )
         contract.save()
         
@@ -182,15 +187,95 @@ def get(request, pk):
     try:
         contract = get_object_or_404(Contract, id=pk)
         serializer = ContractSerializer(contract, many=False, context={'request': request}).data
-        # candidates = job.appliedjob_set.all().count()
-        
-        # relatedJobs = JobSerializer(Job.objects.filter(industry=serializer.data['industry']).exclude(id=pk), many=True)
+        related= ContractSerializer(Contract.objects.filter(industry=serializer['industry']).exclude(id=pk), many=True).data
 
         return Response({
             "contract": serializer,
-            # "related": relatedJobs.data,
-            # "candidates": candidates,
+            "related": related,
         }, status=status.HTTP_200_OK)
     
     except Contract.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def apply(request, pk):
+    try:
+        user = request.user
+        data = request.data
+        contractor = Contractor.objects.filter(user=user).first()
+        contract = get_object_or_404(Contract, id=pk)
+        applied = AppliedContract.objects.create(
+            contract=contract,
+            contractor=contractor,
+            poster=contract.poster,
+            coverLetter= bleach.clean(data['coverLetter'], tags=bleached_tags)
+        )
+        applied.save()
+
+        return Response({}, status=status.HTTP_200_OK)
+    except Contract.DoesNotExist:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def managed_contracts(request):
+       # cache.delete('cached_contracts')
+        page = request.GET.get('page', '1')
+        per_page = 50
+        # if page == '1':
+        #     cached_page = cache.get('cached_contracts')
+        #     serialized = BaseContractSerializer(cached_page, many=True,  context={'request': request}).data
+        #     count = len(serialized)
+        #     if cached_page:
+        #         return Response({
+        #             'count': count,
+        #             'per_page': per_page,
+        #             'contracts': serialized
+        #         }, status=status.HTTP_200_OK)
+
+        order = "-created_date"
+        filterset = ContractFilter(request.GET, queryset=Contract.objects.all().order_by(order)).qs
+        count = filterset.count()
+        cache.set('cached_contracts', filterset)
+        paginator = Paginator(filterset, per_page)
+        paginator = paginator.page(page)
+        serializer = BaseContractSerializer(paginator, many=True,  context={'request': request})
+        candidates = []
+        for contract in paginator:
+            candidates.append(AppliedContract.objects.filter(contract=contract).values().count())
+
+        return Response({
+            "count": count,
+            "per_page": per_page,
+            'contracts': serializer.data,
+            'candidates': candidates
+        }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def approve_contract(request, pk, user):
+    try:
+        return Response(status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response(status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_contract(request, pk):
+    try:
+        return Response(status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response(status=status.HTTP_200_OK)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def pause_contract(request, pk):
+    try:
+        return Response(status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response(status=status.HTTP_200_OK)
