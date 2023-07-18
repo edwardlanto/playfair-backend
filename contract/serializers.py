@@ -6,7 +6,6 @@ from company.serializers import MinCompanySerializer
 from candidate.models import SavedContract
 
 class ContractSerializer(serializers.ModelSerializer):
-    company = MinCompanySerializer()
     user = LogoUserSerializer()
     is_saved = serializers.SerializerMethodField()
 
@@ -19,9 +18,8 @@ class ContractSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BaseContractSerializer(serializers.ModelSerializer):
-    company = MinCompanySerializer()
     user = LogoUserSerializer()
     
     class Meta:
         model = Contract
-        fields = ('id', 'title', 'status', 'amount', 'created_date', 'poster', 'contractor', 'user', 'company')
+        fields = ('id', 'title', 'status', 'amount', 'created_date', 'poster', 'contractor', 'user',)

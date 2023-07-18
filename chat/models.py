@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from playfairauth.models import CustomUserModel
+from candidate.models import AppliedContract
 from contract.models import Contract
 
 class Conversation(models.Model):
@@ -9,6 +10,7 @@ class Conversation(models.Model):
     last_message = models.CharField(max_length=128, null=True, blank=True)
     last_message_user = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, related_name="last_message_user", null=True, blank=True)
     contract = models.ForeignKey(Contract, on_delete=models.SET_NULL, related_name="conversation_contract", null=True)
+    applied_contract = models.ForeignKey(AppliedContract, on_delete=models.SET_NULL, related_name="applied_contract", null=True)
     # seller = models.ForeignKey(CustomUserModel, on_delete=models.SET_, null=True, blank=True)
     # buyer = models.ForeignKey(CustomUserModel, on_delete=models.SET_, null=True, blank=True)
     class Meta:

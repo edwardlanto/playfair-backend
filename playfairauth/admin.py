@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUserModel
+from .models import CustomUserModel, CustomUserProfile
 from django.contrib.auth.admin import UserAdmin
 
 class UserAdminWithGroup(UserAdmin):
@@ -15,3 +15,5 @@ class UserAdminWithGroup(UserAdmin):
 
 # admin.site.unregister(CustomUserModel)
 admin.site.register(CustomUserModel, UserAdminWithGroup)
+admin.site.register(CustomUserProfile)
+

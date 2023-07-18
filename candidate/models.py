@@ -7,6 +7,11 @@ from playfairauth.models import Contractor
 from playfairauth.models import CustomUserModel
 import uuid
 
+class Status(models.TextChoices):
+    approved = 'approved'
+    declined = 'declined'
+    pending = 'pending'
+
 class SavedJob(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null = True)
@@ -46,7 +51,7 @@ class AppliedContract(models.Model):
     contractor = models.ForeignKey(Contractor, on_delete=models.SET_NULL, null = True)
     coverLetter = RichTextField(blank=True, null=True) 
     applied_date = models.DateTimeField(auto_now_add=True, null=True)
-    is_approved = models.BooleanField(null=True, default=False)
+    is_approved = models.BooleanField(default=None, null=True)
     user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.CASCADE, null=True, related_name="applied_contract_user")
     is_active = models.BooleanField(null=True, default=True)
 

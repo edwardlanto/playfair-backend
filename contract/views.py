@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from candidate.serializers import BaseAppliedContractSerializer
+from candidate.serializers import *
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from playfairauth.models import CustomUserModel
@@ -29,6 +29,8 @@ from playfairauth.models import Contractor
 from company.models import Company
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from candidate.models import AppliedContract
+from django.views.generic import ListView, DetailView 
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
@@ -126,11 +128,9 @@ def verify(request):
 @transaction.atomic
 def create(request):
     try:
-        company = Company.objects.filter(user=request.user).first()
         data = request.data
         contract = Contract.objects.create(
             title = bleach.clean(data['title']),
-            company=company,
             description= bleach.clean(data['description'], attributes=bleached_attr, tags=bleached_tags),
             currency = data['currency'],
             amount = data['amount'],
@@ -154,7 +154,7 @@ def create(request):
         return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['POST'])
-@transaction.atomic
+@transaction.atomic 
 def update(request):
     try:
         data = request.data
@@ -200,19 +200,34 @@ def get(request, pk):
 @api_view(['POST'])
 def apply(request, pk):
     try:
-        user = request.user
-        data = request.data
-        contractor = Contractor.objects.filter(user=user).first()
-        contract = get_object_or_404(Contract, id=pk)
-        applied = AppliedContract.objects.create(
-            contract=contract,
-            contractor=contractor,
-            poster=contract.poster,
-            coverLetter= bleach.clean(data['coverLetter'], tags=bleached_tags)
-        )
-        applied.save()
+        with transaction.atomic():
+            user = request.user
+            data = request.data
+            contractor = Contractor.objects.filter(user=user).first()
+            contract = get_object_or_404(Contract, id=pk)
+            applied = AppliedContract.objects.create(
+                contract=contract,
+                contractor=contractor,
+                poster=contract.poster,
+                user=user,
+                coverLetter= bleach.clean(data['coverLetter'], tags=bleached_tags)
+            )
+            applied.save()
 
-        return Response({}, status=status.HTTP_200_OK)
+            return Response({"message": "Successfully applied"}, status=status.HTTP_200_OK)
+    except Contract.DoesNotExist:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete(request, pk):
+    try:
+        contract = get_object_or_404(Contract, id=pk)
+        contract.delete()
+
+        return Response({'contract': contract.id}, status=status.HTTP_200_OK)
     except Contract.DoesNotExist:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
@@ -279,3 +294,100 @@ def pause_contract(request, pk):
     
     except Exception as e:
         return Response(status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def applications(request):
+    try:
+        if request.method == 'GET':
+            user = request.user
+            contracts = Contract.objects.filter(user=user, is_active=True).values('id', 'title', 'delivery_type', 'amount', 'city', 'state', 'country')
+
+            for c in contracts:
+                c['applications'] = BaseAppliedContractSerializer(AppliedContract.objects.filter(contract=c['id']), many=True).data
+
+            return Response({'contracts': contracts}, status=status.HTTP_200_OK)
+        
+        # if request.method == 'DELETE':
+        #     application = AppliedContract.objects.filter(id=request.data['id']).first()
+        #     temp = application.id
+        #     application.delete()
+        #     return Response({'message': 'Successfully deleted', 'application': temp},status=status.HTTP_200_OK)
+        if request.method == 'POST':
+            return Response({'message: '},status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_200_OK)
+    
+        
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_application(request, pk):
+    try:
+        print("RAN")
+        application = AppliedContract.objects.filter(id=pk).first()
+        id = application.id
+        application.delete()
+
+        return Response({'application': id}, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_200_OK)
+    
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_application(request, pk):
+    try:
+        with transaction.atomic():
+            application = AppliedContract.objects.filter(id=pk).first()
+            application.is_approved = request.data['is_approved']
+            application.save()
+
+            contract = Contract.objects.get(id=application.contract.id)
+            current_conversation = Conversation.objects.filter(contract=contract.id).first()
+            print(request.data['is_approved'])
+            if current_conversation != None:
+                return Response({"conversation": current_conversation.id, 'application': AppliedContractSerializer(application).data},status=status.HTTP_200_OK)
+            if request.data['is_approved'] == True:
+                print('true')
+                conversation = Conversation.objects.create(
+                    name=contract.title,
+                    applied_contract=application,
+                    last_message_user=None,
+                    last_message=None
+                )
+                conversation.save()
+                conversation_poster = ConversationMember.objects.create(
+                    conversation_id=conversation,
+                    user=contract.poster,
+                )
+                conversation_poster.save()
+
+                conversation_contractor = ConversationMember.objects.create(
+                    conversation_id=conversation,
+                    user=contract.contractor,
+                )
+                conversation_contractor.save()
+                return Response({'application': AppliedContractSerializer(application).data, 'conversation': conversation.id },status=status.HTTP_200_OK)
+
+            else:
+                return Response({'application': AppliedContractSerializer(application).data, 'conversation': None},status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_200_OK)
+    
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def approve_application(request):
+    try:
+        user = request.user
+        contracts = Contract.objects.filter(user=user).values('id', 'title', 'delivery_type', 'amount', 'city', 'state', 'country')
+        for c in contracts:
+            c['applications'] = BaseAppliedContractSerializer(AppliedContract.objects.filter(contract=c['id']), many=True).data
+
+        return Response({'contracts': contracts}, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_200_OK)
+    

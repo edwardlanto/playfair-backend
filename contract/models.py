@@ -59,7 +59,6 @@ class Contract(models.Model):
         choices=Type.choices,
         default=Type.buying
     )
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
     quantity = models.IntegerField(default=1)
     city = models.CharField(max_length=100, null=True)
     country = models.CharField(max_length=100, null=True)

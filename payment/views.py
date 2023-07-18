@@ -243,7 +243,7 @@ def create_contractor_bank_account(request):
         with transaction.atomic():
             data = request.data
             geolocator = Nominatim(user_agent="PlayfairGeoPy")
-            location = geolocator.reverse(data['lat'] + "," + data['lng'])
+            location = geolocator.reverse(data['lat'] + "," + data['long'])
             address = location.raw['address']
             f = open('data/stripe-currencies.json')
             curreny_json = json.load(f)
@@ -292,7 +292,7 @@ def create_contractor_account(request):
             print("RAN FILE")
             dob_arr = data['dob'].split('/')
             geolocator = Nominatim(user_agent="PlayfairGeoPy")
-            location = geolocator.reverse(data['lat'] + "," + data['lng'])
+            location = geolocator.reverse(data['lat'] + "," + data['long'])
             address = location.raw['address']
             profile = CustomUserProfile.objects.filter(user=request.user).first()
             contractor = Contractor.objects.filter(user=user).first()
@@ -354,10 +354,14 @@ def verify_account(request):
 def address(request):
     data = request.data
     # geolocator = Nominatim(user_agent="PlayfairGeoPy")
-    # location = geolocator.reverse(data['lat'] + "," + data['lng'])
+    # location = geolocator.reverse(data['lat'] + "," + data['long'])
     # address = location.raw['address']
     # print(address)
 
     g = geocoder.canadapost('7231 Sherbrooke St, Vancouver, BC V5X 4E3, Canada', key="887e5a7cb633632e:f524cc3fd1d9300fea322f")
     print(g.postal)
     return Response()
+
+@api_view(['GET'])
+def contract_info(request):
+    return Response({}, status=status.HTTP_200_OK)
