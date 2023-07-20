@@ -85,7 +85,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
 class CustomUserProfile(models.Model):
     id = models.CharField(max_length = 50, default = uuid.uuid4, primary_key = True, editable = False)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    user = models.ForeignKey("playfairauth.CustomUserModel", related_name="user", on_delete=models.CASCADE)
+    user = models.ForeignKey("playfairauth.CustomUserModel", related_name="userprofile_user", on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     resume = models.FileField(null=True, blank=True)
     address = models.CharField(max_length=100, null=True, blank=True)

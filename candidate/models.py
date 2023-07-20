@@ -6,11 +6,16 @@ from company.models import Company
 from playfairauth.models import Contractor
 from playfairauth.models import CustomUserModel
 import uuid
+from payment.models import PaymentIntent
 
 class Status(models.TextChoices):
-    approved = 'approved'
-    declined = 'declined'
-    pending = 'pending'
+    available = 'Available'
+    cancelled = 'Cancelled'
+    error = 'Error'
+    pending = 'Pending'
+    completed = 'Completed'
+    paid = 'Paid'
+    in_progress = 'In Progress'
 
 class SavedJob(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
@@ -41,6 +46,7 @@ class AppliedJob(models.Model):
     appliedAt = models.DateTimeField(auto_now_add=True, null=True)
     coverLetter = RichTextField(blank=True, null=True)
     is_approved = models.BooleanField(null=True, default=False)
+    paid = models.BooleanField(default=False, auto_created=True)
     is_active = models.BooleanField(null=True, default=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True)
 
@@ -54,7 +60,15 @@ class AppliedContract(models.Model):
     is_approved = models.BooleanField(default=None, null=True)
     user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.CASCADE, null=True, related_name="applied_contract_user")
     is_active = models.BooleanField(null=True, default=True)
-
+    amount = models.IntegerField(null=True, default=0.00)
+    payment_intent =models.CharField(max_length = 100, null=True, default=None)
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default="pending"
+    )
+    paid = models.BooleanField(default=False)
+    
     class Meta:
         db_table = "applied_contract"
 

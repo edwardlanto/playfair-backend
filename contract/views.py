@@ -2,12 +2,16 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+import stripe
 from candidate.serializers import *
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from playfairauth.models import CustomUserModel
+from payment.models import PaymentIntent
 from .filters import ContractFilter
 from rest_framework.permissions import IsAuthenticated
+import decimal
+import math
 from django.core import serializers
 from .models import Contract
 from django.contrib.auth.models import User
@@ -31,6 +35,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from candidate.models import AppliedContract
 from django.views.generic import ListView, DetailView 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+import os
+stripe.api_key = os.environ.get("STRIPE_TEST_API")
 
 CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
@@ -390,4 +396,68 @@ def approve_application(request):
     
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def application_total(request, pk):
+    if request.method == 'POST':
+        application = None
+        return Response({'application': application}, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        try:
+            application = AppliedContract.objects.get(id=bleach.clean(pk))
+            sub_total = application.amount * 100
+            stripe_fee = int(application.amount) * 0.089 + 0.30
+            stripe_fee = math.trunc(stripe_fee * 100)
+            currency = Contract.objects.get(id=application.contract.id).currency
+            total = sub_total + stripe_fee
+            if application.payment_intent == None:
+                instance = stripe.PaymentIntent.create(
+                    amount=total,
+                    currency=currency['currencyCode'],
+                    automatic_payment_methods={"enabled": True},
+                )
+                application.payment_intent = instance.id
+                application.save()
+
+                return Response({
+                    'payment_intent': instance,
+                    'total': total, 
+                    'sub_total': application.amount, 
+                    'service_fee': stripe_fee, 'currency': currency
+                }, status=status.HTTP_200_OK)
+            else:
+                instance = stripe.PaymentIntent.retrieve(
+                    application.payment_intent,
+                )
+                return Response({
+                    'payment_intent': instance,
+                    'total': total, 
+                    'sub_total': application.amount, 
+                    'service_fee': stripe_fee, 'currency': currency
+                }, status=status.HTTP_200_OK)
+                
+        except AppliedContract.DoesNotExist:
+            return Response({"error": "Could not find Application"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+@api_view(['POST'])
+def paid_application(request, application):
+    try:
+        application = AppliedContract.objects.get(id=application)
+        contract = Contract.objects.get(id=application.contract.id)
+
+        if application.poster != request.user:
+            return Response({"error": "Can not update resource"}, status=status.HTTP_401_UNAUTHORIZED)            
+
+        contract.paid = True
+        contract.status = 'In Progress'
+        application.status = 'In Progress'
+        contract.save()
+        return Response({'message successfully'},status=status.HTTP_200_OK)
+    except AppliedContract.DoesNotExist:
+            return Response({"error": "Could not find Application"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     

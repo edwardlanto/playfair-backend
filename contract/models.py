@@ -15,11 +15,13 @@ class Type(models.TextChoices):
     selling = 'selling'
 
 class Status(models.TextChoices):
-    available = 'available'
-    cancelled = 'cancelled'
-    error = 'error'
-    pending = 'pending'
-    success = 'success'
+    available = 'Available'
+    cancelled = 'Cancelled'
+    error = 'Error'
+    pending = 'Pending'
+    completed = 'Completed'
+    paid = 'Paid'
+    in_progress = 'In Progress'
 
 class DeliveryType(models.TextChoices):
     digital = 'digital'
@@ -35,17 +37,18 @@ class Contract(models.Model):
         choices=DeliveryType.choices,
         default=DeliveryType.physical
     )
-    currency = models.JSONField()
+    currency = models.JSONField(null=True)
     industry = models.CharField(
         max_length=100,
         choices=Industry.choices,
         default=""
     )
     status = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=Status.choices,
         default="pending"
     )
+    paid = models.BooleanField(default=False)
     amount = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
     poster = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, null=True, related_name="contract_poster", blank=True)
     contractor = models.ForeignKey(CustomUserModel, on_delete=models.SET_NULL, null=True, related_name="contract_contractor", blank=True)

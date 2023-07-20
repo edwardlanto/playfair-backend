@@ -227,7 +227,6 @@ def get_logo(request):
 @api_view(["GET"])
 def get_me(request):
     try:
-        print(request.user)
         user = CustomUserModel.objects.get(email=request.user)
 
         if user == None:
@@ -237,7 +236,7 @@ def get_me(request):
         }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({
-
+            
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         

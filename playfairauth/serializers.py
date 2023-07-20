@@ -84,14 +84,14 @@ class FullUserProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CustomUserSerializer(ModelSerializer):
-    userprofile = BaseUserProfileSerializer()
+    userprofile_user = BaseUserProfileSerializer()
     
     class Meta:
         model = CustomUserModel
         fields = [
             "id",
             "username",
-            "userprofile",
+            "userprofile_user",
             "account_type",
             "first_name",
             "last_name",
@@ -148,8 +148,8 @@ class SessionCustomUserSerializer(serializers.ModelSerializer):
     
     def get_resume(self, obj):
         resume = CustomUserProfile.objects.values_list('resume', flat=False).get(user=self.context['user'] )[0]
-        
         return resume
+    
     class Meta: 
         model = CustomUserModel
         fields = [
@@ -171,13 +171,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 try:
                     data['provider'] = 'credentials'
                     data['user'] = CustomUserSerializer(user).data
-                    print(user.groups.all())
                     data["account_type"] = list(user.groups.all().values_list('name', flat=True))
                     data["pf_refresh_token"]: str(refresh)
                     data['pf_access_token']: access_token
                     return data
                 except Exception as e:
-                    raise serializers.ValidationError("Something Wrong!")
+                    raise serializers.ValidationError(str(e))
             else:
                 raise serializers.ValidationError("Account is Blocked")
         else:

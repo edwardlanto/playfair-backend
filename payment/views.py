@@ -1,14 +1,21 @@
 import bleach
 from rest_framework.decorators import api_view, permission_classes
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from company.models import Company
 from playfairauth.models import Contractor
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
+from contract.models import Contract
+import math
+from candidate.models import AppliedContract
+import array
 from playfairauth.models import CustomUserProfile
 import stripe
 import os
+import decimal
+import bleach
 from geopy.geocoders import Nominatim
 import geocoder
 import json
@@ -362,6 +369,51 @@ def address(request):
     print(g.postal)
     return Response()
 
-@api_view(['GET'])
-def contract_info(request):
-    return Response({}, status=status.HTTP_200_OK)
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def payment_intent(request, pk):
+    if request.method == 'POST':
+        application = None
+        return Response({'application': application}, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        try:
+            receipt = {}
+            application = AppliedContract.objects.get(id=bleach.clean(pk))
+            contract_title = Contract.objects.get(id=application.contract.id).title
+            sub_total = application.amount * 100
+            service_fee = int(application.amount) * 0.089 + 0.30
+            service_fee = math.trunc(service_fee * 100)
+            currency = Contract.objects.get(id=application.contract.id).currency
+            total = sub_total + service_fee
+            receipt['total'] = total
+            receipt['sub_total'] = sub_total
+            receipt['service_fee'] = service_fee
+            if application.payment_intent == None:
+                instance = stripe.PaymentIntent.create(
+                    amount=total,
+                    description=contract_title,
+                    currency=currency['currencyCode'],
+                    automatic_payment_methods={"enabled": True},
+                )
+
+                application.payment_intent = instance.id
+                application.save()
+
+                return Response({
+                    'payment_intent': instance,
+                    'receipt': receipt,
+                }, status=status.HTTP_200_OK)
+            else:
+                instance = stripe.PaymentIntent.retrieve(
+                    application.payment_intent,
+                )
+                return Response({
+                    'payment_intent': instance,
+                    'receipt': receipt,
+                }, status=status.HTTP_200_OK)
+                
+        except AppliedContract.DoesNotExist:
+            return Response({"error": "Could not find Application"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
