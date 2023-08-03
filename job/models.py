@@ -12,6 +12,10 @@ class Education(models.TextChoices):
     Masters = 'Masters'
     Phd = 'Phd'
 
+class RateType(models.TextChoices):
+    Salary = 'Salary'
+    Hourly = 'Hourly'
+
 class Industry(models.TextChoices):
     Accounting = 'Accounting'
     Advertising = 'Advertising'
@@ -117,11 +121,17 @@ class Job(models.Model):
     facebook = models.CharField(max_length=100, null=True, blank=True)
     twitter = models.CharField(max_length=100, null=True, blank=True)
     state = models.CharField(max_length=100, null=True)
+    work_status = models.CharField(max_length=20, default="Full-Time")
     type = ArrayField(models.JSONField(), blank=True, null=True)
     education = models.CharField(
         max_length=100,
         choices=Education.choices,
         default=Education.Bachelors
+    )
+    rate_type = models.CharField(
+        max_length=100,
+        choices=RateType.choices,
+        default=RateType.Salary
     )
     city = models.CharField(max_length=100, null=True)
     industry = models.CharField(

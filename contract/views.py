@@ -92,7 +92,7 @@ def index(request):
         #             'contracts': serialized
         #         }, status=status.HTTP_200_OK)
 
-        order = "-created_date"
+        order =  '-created_date' if request.GET.get('orderBy') == 'asc' else 'created_date'
         filterset = ContractFilter(request.GET, queryset=Contract.objects.all().order_by(order)).qs
         count = filterset.count()
         cache.set('cached_contracts', filterset)
@@ -101,7 +101,7 @@ def index(request):
         serializer = BaseContractSerializer(paginator, many=True,  context={'request': request})
 
         return Response({
-            "count": count,
+            "count": count, 
             "per_page": per_page,
             'contracts': serializer.data,
             'candidates': []
@@ -193,11 +193,11 @@ def get(request, pk):
     try:
         contract = get_object_or_404(Contract, id=pk)
         serializer = ContractSerializer(contract, many=False, context={'request': request}).data
-        related= ContractSerializer(Contract.objects.filter(industry=serializer['industry']).exclude(id=pk), many=True).data
+        related_contracts = ContractSerializer(Contract.objects.filter(industry=serializer['industry']).exclude(id=pk), many=True).data
 
         return Response({
             "contract": serializer,
-            "related": related,
+            "related_contracts": related_contracts,
         }, status=status.HTTP_200_OK)
     
     except Contract.DoesNotExist:
@@ -307,18 +307,13 @@ def applications(request):
     try:
         if request.method == 'GET':
             user = request.user
-            contracts = Contract.objects.filter(user=user, is_active=True).values('id', 'title', 'delivery_type', 'amount', 'city', 'state', 'country')
+            contracts = Contract.objects.values('id', 'title', 'delivery_type', 'amount', 'city', 'state', 'country', 'user', 'contractor').filter(user=user, is_active=True)
 
             for c in contracts:
                 c['applications'] = BaseAppliedContractSerializer(AppliedContract.objects.filter(contract=c['id']), many=True).data
 
             return Response({'contracts': contracts}, status=status.HTTP_200_OK)
-        
-        # if request.method == 'DELETE':
-        #     application = AppliedContract.objects.filter(id=request.data['id']).first()
-        #     temp = application.id
-        #     application.delete()
-        #     return Response({'message': 'Successfully deleted', 'application': temp},status=status.HTTP_200_OK)
+    
         if request.method == 'POST':
             return Response({'message: '},status=status.HTTP_200_OK)
     

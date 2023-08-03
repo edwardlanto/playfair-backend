@@ -277,11 +277,11 @@ def get_applied_job(request, pk):
 @transaction.atomic
 def get_saved_jobs(request):
     try:
-        time = int(request.GET.get('createdAt'))
+        time = int(request.GET.get('created_date'))
         today = date.today()
         months = today - relativedelta(months=time)
-        savedJobs = CandidateSavedJobSerializer(SavedJob.objects.filter(user=request.user.id, createdAt__gte = months), many=True).data
-        return Response({ "savedJobs": savedJobs })
+        jobs = CandidateSavedJobSerializer(SavedJob.objects.filter(user=request.user.id, created_date__gte = months), many=True).data
+        return Response({ "jobs": jobs })
     except Exception as e:
         return Response({ "error": "Erorr With" + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -428,9 +428,10 @@ def get_candidates(request):
 def get_candidate(request, pk):
     try:
         profile = CustomUserProfile.objects.filter(id=pk).first()
+        related_candidates = BaseUserProfileSerializer(CustomUserProfile.objects.all().order_by('created_date').exclude(id=pk)[:3], many=True).data
         if profile == None:
             return Response(status.HTTP_404_NOT_FOUND)
-        return Response({ "candidate": FullUserProfileSerializer(profile).data}, status=status.HTTP_200_OK)
+        return Response({ "candidate": FullUserProfileSerializer(profile).data, 'related_candidates': related_candidates}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({ "error": str(e)}, status=status.HTTP_200_OK)
     

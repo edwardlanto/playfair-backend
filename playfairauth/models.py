@@ -78,6 +78,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
   is_complete = models.BooleanField(default = False)
   objects = CustomUserModelManager()
   gig_verified = models.BooleanField(default = False)
+  dob = models.DateField(null=True, blank=True)
   
   class Meta:
     verbose_name = "Custom User"
@@ -111,7 +112,7 @@ class CustomUserProfile(models.Model):
     experience = models.CharField(max_length=100, null=True, default="", blank=True)
     is_age_visible = models.BooleanField(default=True)
     languages = ArrayField(models.JSONField(), default=list, blank=True)
-    skills = ArrayField(models.JSONField(), null=True, blank=True)
+    skills = ArrayField(models.JSONField(), default=list)
     interests = ArrayField(models.JSONField(), null=True, blank=True)
     allow_in_listings = models.BooleanField(default=False)
     first_logged_in = models.BooleanField(default=False)
@@ -162,6 +163,10 @@ class Contractor(models.Model):
   stripe_person = models.CharField(max_length=50, null=True, blank=True)
   stripe_id_front = models.CharField(max_length=50, null=True, blank=True)
   stripe_id_back = models.CharField(max_length=50, null=True, blank=True)
+  lat = models.CharField(max_length=200, null=True, blank=True)
+  lng = models.CharField(max_length=200, null=True, blank=True)
+  account_holder_name = models.CharField(max_length=200, null=True, blank=True)
+  account_last_4 = models.CharField(max_length=4, null=True, blank=True)
   
   class Meta:
     verbose_name = "Contractor"

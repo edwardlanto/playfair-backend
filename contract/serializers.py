@@ -3,7 +3,7 @@ from .models import Contract
 from playfairauth.models import CustomUserModel
 from playfairauth.serializers import LogoUserSerializer
 from company.serializers import MinCompanySerializer
-from candidate.models import SavedContract
+from candidate.models import SavedContract, AppliedContract
 
 class ContractSerializer(serializers.ModelSerializer):
     user = LogoUserSerializer()
@@ -19,7 +19,12 @@ class ContractSerializer(serializers.ModelSerializer):
 
 class BaseContractSerializer(serializers.ModelSerializer):
     user = LogoUserSerializer()
+    applied_count = serializers.SerializerMethodField()
+
+    def get_applied_count(self, obj):
+         applied_count = AppliedContract.objects.filter(contract=obj.id).count()
+         return applied_count
     
     class Meta:
         model = Contract
-        fields = ('id', 'title', 'status', 'amount', 'created_date', 'poster', 'contractor', 'user',)
+        fields = ('id', 'title', 'status', 'amount', 'created_date', 'contractor', 'user', 'image', 'applied_count', 'country', 'city')

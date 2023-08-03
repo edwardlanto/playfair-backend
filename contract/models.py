@@ -41,7 +41,7 @@ class Contract(models.Model):
     industry = models.CharField(
         max_length=100,
         choices=Industry.choices,
-        default=""
+        default="Construction"
     )
     status = models.CharField(
         max_length=20,

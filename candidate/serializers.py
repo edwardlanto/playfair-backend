@@ -60,11 +60,11 @@ class BaseContractorSerializer(serializers.ModelSerializer):
 
 class BaseAppliedContractSerializer(serializers.ModelSerializer):
     user = LogoUserSerializer()
-    profile = serializers.SerializerMethodField()
+    userprofile = serializers.SerializerMethodField()
     conversation = serializers.SerializerMethodField()
 
-    def get_profile(self, obj):
-        return CustomUserProfile.objects.filter(user=obj.contractor.user).values('title', 'experience')
+    def get_userprofile(self, obj):
+        return CustomUserProfile.objects.filter(user=obj.user).values('title', 'experience', 'city', 'country', 'state').first()
     
     def get_conversation(self, obj):
         return Conversation.objects.filter(contract=obj.contract).values('id').first()

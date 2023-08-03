@@ -74,14 +74,20 @@ class ChatModelSerializer(serializers.ModelSerializer):
 
 class FullUserProfileSerializer(serializers.ModelSerializer):
     is_complete = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
 
     def get_is_complete(self, obj):
         is_complete = CustomUserModel.objects.values_list('is_complete', flat=False).get(id=obj.user.id)[0]
         return is_complete
+    
+    def get_email(self, obj):
+        email = CustomUserModel.objects.get(id=obj.user.id).email
+        return email
+    
 
     class Meta:
         model = CustomUserProfile
-        fields = '__all__'
+        fields = ('id', 'is_complete', 'uuid', 'email', 'resume', 'address', 'postal_code', 'bio', 'phone', 'country', 'country_code', 'city', 'state', 'website', 'linkedIn', 'instagram', 'first_name', 'last_name', 'title', 'education_level', 'rating', 'unit', 'logo', 'industry', 'experience', 'is_age_visible', 'languages', 'skills', 'interests', 'allow_in_listings', 'first_logged_in', 'age', 'expected_salary', 'current_salary', 'dob', 'is_candidate', 'is_expected_salary_visible', 'created_date', 'stripe_account', 'stripe_bank_token', 'stripe_person', 'stripe_id_front', 'stripe_id_back', 'user', 'company')
 
 class CustomUserSerializer(ModelSerializer):
     userprofile_user = BaseUserProfileSerializer()
@@ -118,7 +124,8 @@ class FullCustomUserSerializer(serializers.ModelSerializer):
             "account_type",
             "first_name",
             "last_name",
-            "email"
+            "email",
+            "image"
         ]
 
     def create(self, validated_data):

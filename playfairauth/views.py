@@ -212,22 +212,13 @@ def me(request):
     
 @api_view(["GET"])
 def get_logo(request):
-    user = request.user
-    if(user.groups.filter(name='company').exists()):
-        user = CustomUserModel.objects.filter(email=user.email).first()
-        return Response({'logo': user.image.url}, status=status.HTTP_200_OK)
-            
-    if(user.groups.filter(name='candidate').exists()):
-        userprofile = CustomUserProfile.objects.filter(user=request.user).first()
-        if not userprofile.logo:
-            return Response({'logo': None}, status=status.HTTP_200_OK)
-        else:
-            return Response({'logo': userprofile.logo.url}, status=status.HTTP_200_OK)
+    user = CustomUserModel.objects.filter(email=request.user.email).first()
+    return Response({'image': user.image.url}, status=status.HTTP_200_OK)
         
 @api_view(["GET"])
 def get_me(request):
     try:
-        user = CustomUserModel.objects.get(email=request.user)
+        user = CustomUserModel.objects.get(id=request.user.id)
 
         if user == None:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
@@ -396,3 +387,15 @@ def get_location(request):
         "country": response.get("country_name")
     }
     return location_data
+
+@api_view(['DELETE'])
+def delete_logo(request):
+    try:
+        user = request.user
+        user = CustomUserModel.objects.filter(id=user.id).first()
+        user.image.delete()
+        user.save()
+
+        return Response({}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(status=status.HTTP_204_NO_CONTENT)

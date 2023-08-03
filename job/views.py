@@ -1,4 +1,4 @@
-from django.utils import timezone
+from contract.serializers import *
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -7,6 +7,7 @@ from django.db.models import Avg, Min, Max, Count
 from rest_framework.pagination import PageNumberPagination
 from company.serializers import BaseCompanySerializer
 from .serializers import BaseJobSerializer, JobSerializer
+from contract.models import Contract
 from .models import Job
 from candidate.models import AppliedJob
 from candidate.models import SavedJob
@@ -16,11 +17,6 @@ from playfairauth.models import CustomUserModel
 from .filters import JobsFilter
 from company.models import Company
 from rest_framework.permissions import IsAuthenticated
-from django.core import serializers
-from django.http import JsonResponse
-from django.core import serializers
-from django.contrib.auth.models import User
-from datetime import date
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
@@ -29,7 +25,7 @@ CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 
 @api_view(['GET'])
 def index(request):
-    order = "-created_date"
+    order =  '-created_date' if request.GET.get('orderBy') == 'asc' else 'created_date'
     filterset = JobsFilter(request.GET, queryset=Job.objects.all().order_by(order))
     count = filterset.qs.count()
     resPerPage = 50
@@ -59,6 +55,8 @@ def homeJobs(request):
         featured = BaseJobSerializer(Job.objects.filter(featured=True), many=True, context={'request': request}).data
         recent = BaseJobSerializer(Job.objects.filter(featured=False), many=True, context={'request': request}).data
         companies = BaseCompanySerializer(Company.objects.all(), many=True).data 
+        contracts = BaseContractSerializer(Contract.objects.all(), many=True).data
+
         is_complete = None
         if CustomUserModel.objects.filter(id=request.user.id).exists():
             is_complete = CustomUserModel.objects.filter(id=request.user.id).first().is_complete
@@ -66,6 +64,7 @@ def homeJobs(request):
             "count": count,
             "resPerPage": resPerPage,
             'jobs': jobs,
+            'contracts': contracts,
             'recent': recent,
             'featured': featured,
             'companies':companies,
