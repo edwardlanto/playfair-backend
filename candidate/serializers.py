@@ -4,6 +4,7 @@ from playfairauth.serializers import LogoUserSerializer
 from job.serializers import JobSerializer, BaseJobSerializer
 from playfairauth.models import CustomUserProfile
 from chat.models import Conversation
+from contract.models import Contract
 from playfairauth.serializers import CustomUserSerializer, BaseUserProfileSerializer
 from .models import SavedJob
 from candidate.models import AppliedJob, AppliedContract
@@ -62,12 +63,16 @@ class BaseAppliedContractSerializer(serializers.ModelSerializer):
     user = LogoUserSerializer()
     userprofile = serializers.SerializerMethodField()
     conversation = serializers.SerializerMethodField()
+    contract_title = serializers.SerializerMethodField()
 
     def get_userprofile(self, obj):
         return CustomUserProfile.objects.filter(user=obj.user).values('title', 'experience', 'city', 'country', 'state').first()
     
     def get_conversation(self, obj):
-        return Conversation.objects.filter(contract=obj.contract).values('id').first()
+        return Conversation.objects.filter(application=obj.id).values('id').first()
+    
+    def get_contract_title(self, obj):
+        return Contract.objects.filter(id=obj.contract.id).first().title
 
     class Meta:
         model = AppliedContract

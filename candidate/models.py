@@ -61,7 +61,7 @@ class AppliedContract(models.Model):
     user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.CASCADE, null=True, related_name="applied_contract_user")
     is_active = models.BooleanField(null=True, default=True)
     amount = models.IntegerField(null=True, default=0.00)
-    payment_intent =models.CharField(max_length = 100, null=True, default=None)
+    payment_intent =models.CharField(max_length = 100, null=True, default=None, blank=True)
     status = models.CharField(
         max_length=20,
         choices=Status.choices,

@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from company.models import Company
+from chat.models import Conversation
 from playfairauth.models import Contractor, CustomUserModel
 from playfairauth.serializers import FullCustomUserSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -177,7 +178,6 @@ async def update_company_person(request):
 def upload_verification_file(request):
     try:
         user = request.user
-        print('ran verification')
         stripe_account_id = None
 
         if user.groups.filter(name='contractor').exists():
@@ -226,11 +226,13 @@ def upload_verification_file(request):
                     company = Company.objects.filter(user=user).first()
                     company.stripe_id_back = back.id
                     company.save()
+        contractorGroup = Group.objects.get(name='contractor') 
+        contractorGroup.user_set.add(user.id)
         return Response({"front": front.id, "back": back.id}, status=status.HTTP_200_OK)
         # return Response({"front": front, 'back': back}, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Error with verification uploads."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -273,7 +275,6 @@ def create_contractor_bank_account(request):
             geolocator = Nominatim(user_agent="PlayfairGeoPy")
             location = geolocator.reverse(data['lat'] + "," + data['lng'])
             address = location.raw['address']
-            print(address)
             dob_arr = data['formatted_dob'].split('-')
             f = open('data/stripe-currencies.json')
             curreny_json = json.load(f)
@@ -346,8 +347,6 @@ def create_contractor_bank_account(request):
                 )
                 contractor.stripe_account = account_instance.id
                 contractor.save()
-                contractorGroup = Group.objects.get(name='contractor') 
-                contractorGroup.user_set.add(user.id)
 
 
             else:
@@ -485,28 +484,31 @@ def create_contractor_bank_account(request):
 @api_view(['GET'])
 def account(request):
     user = CustomUserModel.objects.values('first_name', 'last_name').filter(id=request.user.id).first()
+    groups = []
+        
+    for g in request.user.groups.all():
+        groups.append(g.name)
+
     if request.user.groups.filter(name='contractor').exists():
         account_instance = Contractor.objects.filter(user=request.user).first()
         if account_instance != None:
             account_instance = stripe.Account.retrieve(account_instance.stripe_account)
-        groups = []
-        
-        for g in request.user.groups.all():
-            groups.append(g.name)
+
         
         created = Contractor.objects.values().filter(user=request.user).first()
-
+        if(created):
+            created = True
         return Response({
-            'account_created': created, 
+            'account_created': True, 
             'user' : user, 
             'account_instance': account_instance,
             'groups': groups
-            },status=status.HTTP_200_OK)
+        },status=status.HTTP_200_OK)
 
-    if user.groups.filter(name='company').exists():
-        return Response({
-            'company': 'company'
-            },status=status.HTTP_200_OK)
+    return Response({
+        'user' : user, 
+        'groups': groups
+    },status=status.HTTP_200_OK)
     
 @api_view(['POST'])
 def address(request):
@@ -532,7 +534,7 @@ def payment_intent(request, pk):
             application = AppliedContract.objects.get(id=bleach.clean(pk))
             contract_title = Contract.objects.get(id=application.contract.id).title
             sub_total = application.amount * 100
-            service_fee = int(application.amount) * 0.089 + 0.30
+            service_fee = int(application.amount) * 0.15 + 0.30
             service_fee = math.trunc(service_fee * 100)
             currency = Contract.objects.get(id=application.contract.id).currency
             total = sub_total + service_fee
@@ -543,7 +545,7 @@ def payment_intent(request, pk):
                 instance = stripe.PaymentIntent.create(
                     amount=total,
                     description=contract_title,
-                    currency=currency['currencyCode'],
+                    currency=currency['code'],
                     automatic_payment_methods={"enabled": True},
                 )
 
@@ -567,37 +569,33 @@ def payment_intent(request, pk):
             return Response({"error": "Could not find Application"}, status=status.HTTP_404_NOT_FOUND)
         
 @api_view(['POST', 'GET'])
+@permission_classes([IsAuthenticated])
 def payout_contractor(request, pk):
     try:
-
-        
         if request.method == 'POST':
-            application = AppliedContract.objects.get(id=pk)
+            try:
+                application = AppliedContract.objects.get(id=pk)
 
-            if application.paid == False:
-                return Response({'error': 'Contract not paid'},status=status.HTTP_400_BAD_REQUEST)
-            contractor = Contractor.objects.get(id=application.contractor.id)
-            amount = application.amount * 0.029
-            platform_fee = application.amount * 0.029
-            test = f'{application.amount:.2f}'
-            print('platform', platform_fee)
-            print('amount', amount)
-            print(type(test), (test * 100))
-            # print(contractor.stripe_account)
-            # instance = stripe.PaymentIntent.create(
-            #     amount=120000,
-            #     currency="cad",
-            #     automatic_payment_methods={"enabled": True},
-            #     transfer_data={"amount": 110000, "destination": contractor.stripe_account},
-            # )
+                if application.status == 'Completed':
+                    return Response({'error': 'Already paid out contractor.'},status=status.HTTP_400_BAD_REQUEST)
+                
+                contract = Contract.objects.get(id=application.contract.id)
+                contractor = Contractor.objects.get(id=application.contractor.id)
+                amount = round(float(application.amount)) * 100
+                platform_fee = round(float(amount * 0.185))
+                payout_amount = amount - platform_fee
+                instance = stripe.Transfer.create(
+                    amount=payout_amount,
+                    currency=contract.currency['code'],
+                    destination=contractor.stripe_account,
+                )
+                application.status = 'Completed'
+                application.is_active = False
+                application.save()
 
-            instance = stripe.Transfer.create(
-                amount=1000,
-                currency="cad",
-                destination=contractor.stripe_account,
-            )
-
-            return Response({'message': 'Successfully paid out', 'instance': instance},status=status.HTTP_200_OK)
+                return Response({'message': 'Successfully paid out', 'instance': instance},status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         if request.method == 'GET':
             application = AppliedContract.objects.values('id', 'contractor', 'amount', 'paid').filter(id=pk).first()
@@ -612,6 +610,19 @@ def payout_contractor(request, pk):
             return Response({'message': 'Successfully paid out', 'application': application, 'platform_fee': platform_fee},status=status.HTTP_200_OK)
     except AppliedContract.DoesNotExist:
         return Response({"error": "Could not find Application"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def payment_paid(request, pk):
+    try:
+        applied_contract = AppliedContract.objects.get(id=pk)
+        applied_contract.paid = True
+        applied_contract.status = 'In Progress'
+        applied_contract.save()
+        thread = Conversation.objects.get(application=applied_contract.id)
+        return Response({'thread': thread.id})
     except Exception as e:
         return Response({'error': str(e)},status=status.HTTP_200_OK)
 

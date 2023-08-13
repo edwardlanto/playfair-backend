@@ -15,13 +15,11 @@ class Type(models.TextChoices):
     selling = 'selling'
 
 class Status(models.TextChoices):
-    available = 'Available'
-    cancelled = 'Cancelled'
-    error = 'Error'
-    pending = 'Pending'
-    completed = 'Completed'
-    paid = 'Paid'
-    in_progress = 'In Progress'
+    Available = 'Available'
+    Cancelled = 'Cancelled'
+    Completed = 'Completed'
+    Paid = 'Paid'
+    Progress = 'In Progress'
 
 class DeliveryType(models.TextChoices):
     digital = 'digital'
@@ -46,7 +44,7 @@ class Contract(models.Model):
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default="pending"
+        default="available"
     )
     paid = models.BooleanField(default=False)
     amount = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)

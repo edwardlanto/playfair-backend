@@ -42,10 +42,11 @@ CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
 bleached_attr = ['class', 'href', 'style']
 
-@api_view(['POST'])
-def confirm_contract(request, pk):
+@api_view(['GET'])
+def open_chat(request, pk):
     try:
-        contract = Contract.objects.get(id=pk)
+        application = get_object_or_404(AppliedContract, id=pk)
+        contract = Contract.objects.get(id=application.contract.id)
         current_conversation = Conversation.objects.filter(contract=contract.id).first()
         if current_conversation:
             return Response({"thread": current_conversation.id},status=status.HTTP_200_OK)
@@ -54,23 +55,26 @@ def confirm_contract(request, pk):
             name=contract.title,
             contract=contract,
             last_message_user=None,
-            last_message=None
+            last_message=None,
+            application=application
         )
         conversation.save()
-        conversation_seller = ConversationMember.objects.create(
+        conversation_poster = ConversationMember.objects.create(
             conversation_id=conversation,
-            user=contract.seller,
+            user=application.poster,
         )
-        conversation_seller.save()
-        conversation_buyer = ConversationMember.objects.create(
+
+        contractor = Contractor.objects.get(id=application.contractor.id)
+        conversation_poster.save()
+        conversation_contractor = ConversationMember.objects.create(
             conversation_id=conversation,
-            user=contract.buyer,
+            user=contractor.user,
         )
-        conversation_buyer.save()
+        conversation_contractor.save()
         
         return Response({"thread": conversation.id},status=status.HTTP_200_OK)
     
-    except ObjectDoesNotExist as e:
+    except Contract.DoesNotExist as e:
         return Response(status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)},status.HTTP_400_BAD_REQUEST)
@@ -192,12 +196,19 @@ def update(request):
 def get(request, pk):
     try:
         contract = get_object_or_404(Contract, id=pk)
+        user = request.user
         serializer = ContractSerializer(contract, many=False, context={'request': request}).data
-        related_contracts = ContractSerializer(Contract.objects.filter(industry=serializer['industry']).exclude(id=pk), many=True).data
-
+        related_contracts = ContractSerializer(Contract.objects.filter(industry=serializer['industry']).exclude(id=pk), many=True, context={'request': request}).data
+        groups = []
+        
+        for g in request.user.groups.all():
+            groups.append(g.name)
+        
         return Response({
             "contract": serializer,
             "related_contracts": related_contracts,
+            "groups": groups,
+
         }, status=status.HTTP_200_OK)
     
     except Contract.DoesNotExist:
@@ -211,8 +222,14 @@ def apply(request, pk):
             data = request.data
             contractor = Contractor.objects.filter(user=user).first()
             contract = get_object_or_404(Contract, id=pk)
+
+            already_applied = AppliedContract.objects.filter(contract=contract, user=user).exists()
+            if already_applied:
+                return Response({ "message": "You have already applied for this job"}, status=status.HTTP_200_OK)
+            
             applied = AppliedContract.objects.create(
                 contract=contract,
+                amont=contract.amount,
                 contractor=contractor,
                 poster=contract.poster,
                 user=user,
@@ -274,23 +291,23 @@ def managed_contracts(request):
             'candidates': candidates
         }, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def approve_contract(request, pk, user):
-    try:
-        return Response(status=status.HTTP_200_OK)
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def approve_contract(request, pk, user):
+#     try:
+#         return Response(status=status.HTTP_200_OK)
     
-    except Exception as e:
-        return Response(status=status.HTTP_200_OK)
+#     except Exception as e:
+#         return Response(status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def delete_contract(request, pk):
-    try:
-        return Response(status=status.HTTP_200_OK)
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def delete_contract(request, pk):
+#     try:
+#         return Response(status=status.HTTP_200_OK)
     
-    except Exception as e:
-        return Response(status=status.HTTP_200_OK)
+#     except Exception as e:
+#         return Response(status=status.HTTP_200_OK)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

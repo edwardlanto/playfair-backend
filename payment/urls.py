@@ -14,6 +14,7 @@ urlpatterns = [
     path('account', views.account, name='account'),
     path('address', views.address, name='address'),
     # path('contracts/<str:pk>', views.contract_info, name='contract-info'),
+    path('payment-intent/paid/<str:pk>', views.payment_paid, name='payment_paid'),
     path('payment-intent/<str:pk>', views.payment_intent, name='payment_intent'),
     path('payout/<str:pk>', views.payout_contractor, name='payout_contractor'),
     # path('update-contractor-person/', views.update_contractor_person, name='update_contractor_person'),

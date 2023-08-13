@@ -3,12 +3,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import SavedJob, AppliedJob, SavedCompany
 from django.shortcuts import get_object_or_404
+from candidate.serializers import BaseAppliedContractSerializer
 from rest_framework import status
 from job.models import Job
 from rest_framework.response import Response
 from company.models import Company
 from playfairauth.serializers import BaseUserProfileSerializer, FullUserProfileSerializer
-from candidate.models import AppliedJob, SavedJob
+from candidate.models import AppliedJob, SavedJob, AppliedContract
 from playfairauth.models import CustomUserProfile, CustomUserModel
 from playfairauth.serializers import CustomUserSerializer, FullCustomUserSerializer
 from django.db import transaction
@@ -187,7 +188,7 @@ def apply_to_job(request, pk):
             job = job,
             user = user,
             resume = user_profile.resume.url,
-            coverLetter = request.data['coverLetter'],
+            coverLetter = bleach.clean(request.data['coverLetter']),
             company = company,
             is_active = True
         )
@@ -256,10 +257,35 @@ def upload_candidate_resume(request):
 
 @api_view(['GET'])
 @transaction.atomic
-def getAppliedJobs(request):
+def get_applied_jobs(request):
     try:
         jobs =  AppliedJobSerializer(AppliedJob.objects.filter(user=request.user.id), many=True).data
         return Response({ "jobs": jobs})
+    except Exception as e:
+        return Response({ "error": "Erorr With" + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@transaction.atomic
+def get_applied_contracts(request):
+    try:
+        contracts =  BaseAppliedContractSerializer(AppliedContract.objects.filter(user=request.user.id), many=True).data
+        
+        return Response({ "contracts": contracts})
+    
+            # "id": "0621858f-aa0c-4b88-b961-658f18e22ccc",
+            # "contract_id": "885ce50d-9351-4fbe-a665-8b914bfd30b2",
+            # "poster_id": "92a3f892-1d39-4b7f-9824-69a698742ce5",
+            # "contractor_id": "82571c06-0238-41f1-a8cd-6afd54125a9b",
+            # "coverLetter": "<p>tester</p>",
+            # "applied_date": "2023-08-08T04:10:52.176587Z",
+            # "is_approved": null,
+            # "user_id": "43a88445-b0df-42f4-b8b2-fc8be963d283",
+            # "is_active": true,
+            # "amount": 2000,
+            # "payment_intent": "pi_3NdOM4BNnk6PrsIh1NePRtkt",
+            # "status": "In Progress",
+            # "paid": true
+        
     except Exception as e:
         return Response({ "error": "Erorr With" + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

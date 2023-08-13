@@ -23,10 +23,11 @@ from django.core.cache import cache
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_conversation(request, pk):
+def get_conversation(request, appId, pk):
     try:
-        application = AppliedContract.objects.filter(id=pk).first()
-        conversation = Conversation.objects.get(applied_contract=application.id)
+        application = AppliedContract.objects.filter(id=appId).first()
+        contract_title = Contract.objects.filter(id=application.contract.id).first().title
+        conversation = Conversation.objects.get(id=pk)
         messages = Message.objects.filter(conversation_id=conversation.id).order_by('created_date')
         contractor = Contractor.objects.get(id=application.contractor.id)
         current_user = CustomUserModel.objects.select_related('custom_').filter(id=contractor.user.id).values('image', 'username', 'first_name', 'id', 'first_name', 'last_name').first()
@@ -46,6 +47,8 @@ def get_conversation(request, pk):
             "conversation": ConversationSerializer(conversation).data,
             "messages": MessageSerializer(messages, many=True).data,
             "current_user": user,
+            "contract_title": contract_title,
+            "paid": application.paid
             # 'title': profile
         },status=status.HTTP_200_OK)
     except Exception as e:
@@ -55,7 +58,8 @@ def get_conversation(request, pk):
 @permission_classes([IsAuthenticated])
 def create_message(request):
     try:
-        conversation = Conversation.objects.get(applied_contract=request.data['applied_contract'])
+        application = AppliedContract.objects.get(id=request.data['application'])
+        conversation = Conversation.objects.filter(application=application.id).first()
         message = Message.objects.create(
             conversation_id=conversation,
             content=bleach.clean(request.data['content']),

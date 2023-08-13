@@ -8,10 +8,15 @@ from candidate.models import SavedContract, AppliedContract
 class ContractSerializer(serializers.ModelSerializer):
     user = LogoUserSerializer()
     is_saved = serializers.SerializerMethodField()
+    applied = serializers.SerializerMethodField()
 
     def get_is_saved(self, obj):
         saved = SavedContract.objects.filter(contract=obj.id, user=self.context['request'].user.id if self.context else None).exists()
         return saved
+    
+    def get_applied(self, obj):
+        applied = AppliedContract.objects.filter(contract=obj.id, user=self.context['request'].user.id).exists()
+        return applied
     
     class Meta:
         model = Contract

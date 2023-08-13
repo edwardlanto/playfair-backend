@@ -219,11 +219,15 @@ def get_logo(request):
 def get_me(request):
     try:
         user = CustomUserModel.objects.get(id=request.user.id)
-
+        groups = []
+        
+        for g in request.user.groups.all():
+            groups.append(g.name)
         if user == None:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         return Response({
-            'user': ChatModelSerializer(user).data
+            'user': ChatModelSerializer(user).data,
+            'groups': groups
         }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({
@@ -235,11 +239,11 @@ def get_me(request):
 @permission_classes([IsAuthenticated])
 def resume(request):
     try:
-        profile = CustomUserProfile.objects.filter(user=request.user).values('resume', ).first()
-        if profile:
-            return Response({'profile': profile }, status=status.HTTP_200_OK)
+        profile = CustomUserProfile.objects.filter(user=request.user).first()
+        if profile.resume:
+            return Response({'resume': profile.resume.url }, status=status.HTTP_200_OK)
         else:
-            return Response({'profile': None }, status=status.HTTP_200_OK)
+            return Response({'resume': None }, status=status.HTTP_200_OK)
     except Exception as e:
             return Response({'error': str(e) }, status=status.HTTP_200_OK)
 
