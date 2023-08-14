@@ -39,7 +39,7 @@ import os
 stripe.api_key = os.environ.get("STRIPE_TEST_API")
 
 CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
-bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong', 'li', 'ol', 'ul']
+bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong', 'li', 'ol', 'ul', 'style']
 bleached_attr = ['class', 'href', 'style']
 
 @api_view(['GET'])
@@ -145,6 +145,7 @@ def create(request):
             currency = data['currency'],
             amount = data['amount'],
             delivery_type = bleach.clean(data['delivery_type']),
+            industry = bleach.clean(data['industry']),
             quantity = data['quantity'],
             type = bleach.clean(data['type']),
             lat = data['lat'],
@@ -163,31 +164,30 @@ def create(request):
     except Exception as e:
         return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@api_view(['POST'])
-@transaction.atomic 
-def update(request):
+@api_view(['PATCH'])
+# @transaction.atomic 
+def update(request, pk):
     try:
         data = request.data
-        contract = Contract.objects.create(
-            title = bleach.clean(data['title']),
-            description= bleach.clean(data['description'], attributes=bleached_attr, tags=bleached_tags),
-            currency = data['currency'],
-            amount = data['amount'],
-            delivery_type = bleach.clean(data['delivery_type']),
-            quantity = data['quantity'],
-            type = bleach.clean(data['type']),
-            lat = data['lat'],
-            long = data['long'],
-            min_rate = data['min_rate'],
-            max_rate = data['max_rate'],
-            city = bleach.clean(data['city']),
-            state = bleach.clean(data['state']),
-            country = bleach.clean(data['country']),
-            buyer = request.user
-        )
+        contract = Contract.objects.get(id=pk)
+        contract.title = data['title'].strip()
+        contract.description= bleach.clean(data['description'].strip(), attributes=bleached_attr, tags=bleached_tags)
+        contract.currency = data['currency'],
+        # contract.amount = math.ceil(data['amount']*100)/100,
+        contract.delivery_type = bleach.clean(data['delivery_type'])
+        contract.quantity = data['quantity']
+        contract.industry = bleach.clean(data['industry'])
+        contract.type = bleach.clean(data['type'])
+        contract.lat = data['lat']
+        contract.long = data['long']
+        contract.min_rate = data['min_rate']
+        contract.max_rate = data['max_rate']
+        contract.city = data['city']
+        contract.state = data['state']
+        contract.country = data['country']
         contract.save()
         
-        return Response({'contract': ContractSerializer(contract).data}, status=status.HTTP_200_OK)
+        return Response({'contract': ContractSerializer(contract, context={'request': request}).data}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -196,7 +196,6 @@ def update(request):
 def get(request, pk):
     try:
         contract = get_object_or_404(Contract, id=pk)
-        user = request.user
         serializer = ContractSerializer(contract, many=False, context={'request': request}).data
         related_contracts = ContractSerializer(Contract.objects.filter(industry=serializer['industry']).exclude(id=pk), many=True, context={'request': request}).data
         groups = []

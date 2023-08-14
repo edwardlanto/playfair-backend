@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from .models import Contract
 from playfairauth.models import CustomUserModel
-from playfairauth.serializers import LogoUserSerializer
+from playfairauth.serializers import LogoUserSerializer, ChatModelSerializer
 from company.serializers import MinCompanySerializer
 from candidate.models import SavedContract, AppliedContract
 
 class ContractSerializer(serializers.ModelSerializer):
-    user = LogoUserSerializer()
+    user = ChatModelSerializer()
     is_saved = serializers.SerializerMethodField()
     applied = serializers.SerializerMethodField()
 

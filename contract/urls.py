@@ -7,8 +7,7 @@ urlpatterns = [
     path('create', views.create, name='create-contract'),
     path('applications', views.applications, name='applications'),
     path('<str:pk>/', views.get, name='confirm-contract'),
-
-    path('update/<str:pk>', views.update, name='confirm-contract'),
+    path('update/<str:pk>', views.update, name='update-contract'),
     path('apply/<str:pk>', views.apply, name='apply'),
     path('delete/<str:pk>', views.delete, name='delete'),
     path('managed', views.managed_contracts, name='managed_contracts'),
