@@ -8,6 +8,7 @@ from playfairauth.models import CustomUserModel
 class CompanySerializer(serializers.ModelSerializer):
     jobs_available = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
+    user = ChatModelSerializer()
 
     def get_is_saved(self, obj):
         saved = SavedCompany.objects.filter(company=obj.id, user=self.context['request'].user.id if self.context else None).exists()
@@ -18,7 +19,7 @@ class CompanySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = ('id', 'jobs_available', 'is_saved', 'is_active', 'uuid', 'name', 'description', 'email', 'industry', 'phone', 'postal_code', 'address', 'country', 'country_code', 'city', 'state', 'founded_in', 'website', 'lat', 'long', 'size', 'job_count', 'facebook', 'twitter', 'linkedIn', 'instagram', 'rating', 'logo', 'created_date', 'is_complete', 'user')
 
 class ProfileCompanySerializer(serializers.ModelSerializer):
     class Meta:
