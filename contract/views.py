@@ -173,7 +173,6 @@ def update(request, pk):
         contract.title = data['title'].strip()
         contract.description= bleach.clean(data['description'].strip(), attributes=bleached_attr, tags=bleached_tags)
         contract.currency = data['currency']
-        # contract.amount = math.ceil(data['amount']*100)/100,
         contract.delivery_type = bleach.clean(data['delivery_type'])
         contract.quantity = data['quantity']
         contract.industry = bleach.clean(data['industry'])
