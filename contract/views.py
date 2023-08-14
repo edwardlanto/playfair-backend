@@ -39,7 +39,7 @@ import os
 stripe.api_key = os.environ.get("STRIPE_TEST_API")
 
 CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
-bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
+bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong', 'li', 'ol', 'ul']
 bleached_attr = ['class', 'href', 'style']
 
 @api_view(['GET'])

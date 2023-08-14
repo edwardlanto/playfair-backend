@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import serializers
-from playfairauth.serializers import LogoUserSerializer
+from playfairauth.serializers import LogoUserSerializer, ChatModelSerializer
 from job.serializers import JobSerializer, BaseJobSerializer
 from playfairauth.models import CustomUserProfile
 from chat.models import Conversation
