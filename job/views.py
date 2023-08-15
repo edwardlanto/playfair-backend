@@ -27,17 +27,16 @@ CACHE_TTL = getattr(settings ,'CACHE_TTL' , DEFAULT_TIMEOUT)
 def index(request):
     order =  '-created_date' if request.GET.get('orderBy') == 'asc' else 'created_date'
     filterset = JobsFilter(request.GET, queryset=Job.objects.all().order_by(order))
-    count = filterset.qs.count()
-    resPerPage = 50
+    total = filterset.qs.count()
+    per_page = 50
     paginator = PageNumberPagination()
-    paginator.page_size = resPerPage
+    paginator.page_size = per_page
     queryset = paginator.paginate_queryset(filterset.qs, request)
     serializer = BaseJobSerializer(queryset, many=True,  context={'request': request})
-    
  
     return Response({
-        "count": count,
-        "resPerPage": resPerPage,
+        "total": total,
+        "per_page": per_page,
         'jobs': serializer.data
     }, status=status.HTTP_200_OK)
 
@@ -113,7 +112,7 @@ def get_job(request, pk):
 
         return Response({
             "job": serializer.data,
-            "relatedJobs": relatedJobs.data,
+            "related_jobs": relatedJobs.data,
             "candidates": candidates,
         }, status=status.HTTP_200_OK)
     
