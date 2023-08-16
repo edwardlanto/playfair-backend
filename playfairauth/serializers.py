@@ -16,7 +16,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         exclude = ('user',)
 
 class BaseUserProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CustomUserProfile
         fields = (
@@ -33,7 +32,7 @@ class BaseUserProfileSerializer(serializers.ModelSerializer):
             "country",
             'first_name',
             'last_name',
-            'id'
+            'id',
         )
 
 class BaseUserModelSerializer(serializers.ModelSerializer):
@@ -75,7 +74,7 @@ class ChatModelSerializer(serializers.ModelSerializer):
 class FullUserProfileSerializer(serializers.ModelSerializer):
     is_complete = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
-
+    user = ChatModelSerializer()
     def get_is_complete(self, obj):
         is_complete = CustomUserModel.objects.values_list('is_complete', flat=False).get(id=obj.user.id)[0]
         return is_complete
