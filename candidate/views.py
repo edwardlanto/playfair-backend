@@ -439,7 +439,7 @@ def message_to_candidate(request):
 def get_candidates(request):
     order = "-first_name" if request.GET.get('orderBy') == 'desc' else "first_name"
     filterset = CandidateFilter(request.GET, CustomUserProfile.objects.all().order_by(order))
-    count = filterset.qs.count()
+    total = filterset.qs.count()
     resPerPage = 50
 
     paginator = PageNumberPagination()
@@ -448,7 +448,7 @@ def get_candidates(request):
     queryset = paginator.paginate_queryset(filterset.qs, request)
     serializer = BaseUserProfileSerializer(queryset, many=True)
 
-    return Response({"candidates": serializer.data, "count": count, "resPerPage": 50}, status=status.HTTP_200_OK)
+    return Response({"candidates": serializer.data, "total": total, "per_page": 50}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_candidate(request, pk):
