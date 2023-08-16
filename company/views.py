@@ -79,7 +79,7 @@ def get_company(request, pk):
         companySerialized = CompanySerializer(company, many=False, context={'request': request})
         related_jobs = Job.objects.filter(company_id=company.id).select_related('company')[:2] 
         related_jobs = BaseJobSerializer(related_jobs, many=True)
-        related_companies = Company.objects.filter(industry=company.industry)[:3] 
+        related_companies = Company.objects.filter(industry=company.industry).exclude(id=pk)[:3] 
         related_companies = CompanySerializer(related_companies, many=True, context={'request': request})
         return Response({
             "company": companySerialized.data,
