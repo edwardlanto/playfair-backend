@@ -48,7 +48,7 @@ def register_social_user(provider, user_id, email, name, account_type):
                 detail='Please continue your login using ' + filtered_user_by_email[0].auth_provider)
 
     else:
-
+        print("USER RAN")
         user = {
             'username': email, 
             'email': email,
@@ -79,11 +79,11 @@ def register_social_user(provider, user_id, email, name, account_type):
         
         return {
             'provider': 'google',
-            'user': SessionCustomUserSerializer(user,context={'user': new_user}).data,
+            'user': SessionCustomUserSerializer(new_user, context={'user': new_user}).data,
             'account_type': new_user.account_type,
             'tokens': str(new_token[0]['key']),
             'pf_refresh_token': str(refresh),
-            'pf_access_token': access_token,
+            'pf_access_token': str(refresh.access_token),
         }
 
 

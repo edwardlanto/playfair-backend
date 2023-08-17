@@ -152,18 +152,12 @@ class FullCustomUserSerializer(serializers.ModelSerializer):
         return company
     
 class SessionCustomUserSerializer(serializers.ModelSerializer):
-    resume = serializers.SerializerMethodField()
-    
-    def get_resume(self, obj):
-        resume = CustomUserProfile.objects.values_list('resume', flat=False).get(user=self.context['user'] )[0]
-        return resume
     
     class Meta: 
         model = CustomUserModel
         fields = [
             "is_complete",
             "account_type",
-            "resume"
         ]
 
 
