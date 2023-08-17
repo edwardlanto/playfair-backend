@@ -204,7 +204,6 @@ def apply_to_job(request, pk):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def upload_candidate_logo(request):
-    data = request.data
     user = request.user
     userProfile = CustomUserProfile.objects.filter(user=user).first()
 
@@ -216,7 +215,7 @@ def upload_candidate_logo(request):
             userProfile.save()
             
             return Response({
-                "logo": userProfile.logo.url
+                "image": userProfile.logo.url
             }, status=status.HTTP_200_OK)
     else:
         return Response({ "message" : "User not found, could not upload image"}, status=status.HTTP_400_BAD_REQUEST)
