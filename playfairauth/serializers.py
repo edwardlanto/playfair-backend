@@ -10,12 +10,23 @@ from django.contrib.auth import authenticate
 import bleach
 from django.forms.models import model_to_dict
 
+class ChatModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUserModel
+        fields = (
+            "username",
+            "image"
+        )
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUserProfile
         exclude = ('user',)
 
 class BaseUserProfileSerializer(serializers.ModelSerializer):
+    user = ChatModelSerializer()
     class Meta:
         model = CustomUserProfile
         fields = (
@@ -24,6 +35,7 @@ class BaseUserProfileSerializer(serializers.ModelSerializer):
             "languages",
             "interests",
             "logo",
+            "user",
             "bio",
             "expected_salary",
             "created_date",
@@ -61,14 +73,7 @@ class LogoUserSerializer(serializers.ModelSerializer):
         )
 
 
-class ChatModelSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = CustomUserModel
-        fields = (
-            "username",
-            "image"
-        )
 
 
 class FullUserProfileSerializer(serializers.ModelSerializer):
