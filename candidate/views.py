@@ -205,17 +205,17 @@ def apply_to_job(request, pk):
 @permission_classes([IsAuthenticated])
 def upload_candidate_logo(request):
     user = request.user
-    userProfile = CustomUserProfile.objects.filter(user=user).first()
+    userProfile = CustomUserModel.objects.filter(id=user.id).first()
 
     if userProfile is not None:
         if 'logo' not in request.FILES:
             return Response({"error": "Please upload your logo"})
         else:
-            userProfile.logo = request.FILES['logo']
+            userProfile.image = request.FILES['logo']
             userProfile.save()
             
             return Response({
-                "image": userProfile.logo.url
+                "image": userProfile.image.url
             }, status=status.HTTP_200_OK)
     else:
         return Response({ "message" : "User not found, could not upload image"}, status=status.HTTP_400_BAD_REQUEST)
@@ -465,10 +465,10 @@ def delete_logo(request):
     if user == "AnonymousUser":
         return Response({})
 
-    userProfile = CustomUserProfile.objects.filter(user=user).first()
+    userProfile = CustomUserModel.objects.filter(id=user.id).first()
 
     if userProfile != None:
-        userProfile.logo.delete()
+        userProfile.image.delete()
         userProfile.save()
 
         return Response(status=status.HTTP_200_OK)

@@ -220,13 +220,18 @@ def get_me(request):
     try:
         user = CustomUserModel.objects.get(id=request.user.id)
         groups = []
-        
+        obj = {}
+
+        profile = CustomUserModel.objects.get(id=user.id)
+        obj['image'] = profile.image.url
+        obj['username'] = user.username
+
         for g in request.user.groups.all():
             groups.append(g.name)
         if user == None:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         return Response({
-            'user': ChatModelSerializer(user).data,
+            'user': obj,
             'groups': groups
         }, status=status.HTTP_200_OK)
     except Exception as e:
@@ -395,11 +400,11 @@ def get_location(request):
 @api_view(['DELETE'])
 def delete_logo(request):
     try:
-        user = request.user
-        user = CustomUserModel.objects.filter(id=user.id).first()
+        user = CustomUserModel.objects.filter(id=request.user.id).first()
         user.image.delete()
+        user.image = None
         user.save()
 
-        return Response({}, status=status.HTTP_200_OK)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
     except Exception as e:
         return Response(status=status.HTTP_204_NO_CONTENT)
