@@ -86,7 +86,9 @@ class FullUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUserProfile
-        fields = ('id', 'is_complete', 'uuid', 'email', 'resume', 'address', 'postal_code', 'bio', 'phone', 'country', 'country_code', 'city', 'state', 'website', 'linkedIn', 'instagram', 'first_name', 'last_name', 'title', 'education_level', 'rating', 'unit', 'logo', 'industry', 'experience', 'is_age_visible', 'languages', 'skills', 'interests', 'allow_in_listings', 'first_logged_in', 'age', 'expected_salary', 'current_salary', 'dob', 'is_candidate', 'is_expected_salary_visible', 'created_date', 'stripe_id_front', 'stripe_id_back', 'user', 'company')
+        fields = ('id', 'is_complete', 'uuid', 'email', 'resume', 'address', 'postal_code', 'bio', 'phone', 'country', 'country_code', 'city', 'state', 
+                  'website', 'linkedIn', 'instagram', 'first_name', 'last_name', 'title', 'education_level', 'rating', 
+                  'unit', 'logo', 'industry', 'experience', 'is_age_visible', 'languages', 'interests', 'allow_in_listings', 'first_logged_in', 'age', 'expected_salary', 'current_salary', 'dob', 'is_candidate', 'is_expected_salary_visible', 'created_date', 'stripe_id_front', 'stripe_id_back', 'user', 'company')
 
 class CustomUserSerializer(ModelSerializer):
     userprofile_user = BaseUserProfileSerializer()

@@ -88,7 +88,7 @@ def save_company(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @transaction.atomic
-# @user_passes_test(is_candidate)
+@user_passes_test(is_candidate)
 def upgrade_to_company(request):
     try:
         with transaction.atomic():  
@@ -338,7 +338,7 @@ def delete_resume(request):
     
 
 @api_view(['PUT'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def update_me(request):
     user = request.user
     data = request.data
@@ -375,7 +375,6 @@ def update_candidate_me(request):
         data = request.data
         user = request.user
         user = CustomUserModel.objects.get(username=user)
-        # user.email = data['email']
         user.save()
         userprofile = CustomUserProfile.objects.filter(user=user).first()
 
@@ -395,7 +394,7 @@ def update_candidate_me(request):
         userprofile.postal_code = data['postal_code']
         userprofile.industry = data['industry']
         userprofile.interests = data['interests']
-        userprofile.languages = data['languages']
+        userprofile.languages = data['languages'] if data['languages'] != None else []
         userprofile.allow_in_listings = data['allow_in_listings']
         userprofile.experience = data['experience']
         userprofile.expected_salary = data['expected_salary']

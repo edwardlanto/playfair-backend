@@ -112,7 +112,7 @@ class CustomUserProfile(models.Model):
     experience = models.CharField(max_length=100, null=True, default="", blank=True)
     is_age_visible = models.BooleanField(default=True)
     languages = ArrayField(models.JSONField(), default=list, blank=True)
-    skills = ArrayField(models.JSONField(), default=list)
+    # skills = ArrayField(models.JSONField(), default=list)
     interests = ArrayField(models.JSONField(), null=True, blank=True)
     allow_in_listings = models.BooleanField(default=False)
     first_logged_in = models.BooleanField(default=False)
