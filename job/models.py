@@ -134,11 +134,7 @@ class Job(models.Model):
         default=RateType.Salary
     )
     city = models.CharField(max_length=100, null=True)
-    industry = models.CharField(
-        max_length=100,
-        choices=Industry.choices,
-        default=Industry.Business
-    )
+    industry = models.CharField(max_length=100, null=True, default='Sales')
     experience = models.CharField(
         max_length=100,
         choices=Experience.choices,
