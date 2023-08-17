@@ -454,7 +454,7 @@ def get_candidates(request):
 def get_candidate(request, pk):
     try:
         profile = CustomUserProfile.objects.filter(id=pk).first()
-        related_candidates = BaseUserProfileSerializer(CustomUserProfile.objects.all().order_by('created_date').exclude(id=pk)[:3], many=True).data
+        related_candidates = BaseUserProfileSerializer(CustomUserProfile.objects.all().order_by('created_date').exclude(id=pk)[:4], many=True).data
         if profile == None:
             return Response(status.HTTP_404_NOT_FOUND)
         return Response({ "candidate": FullUserProfileSerializer(profile).data, 'related_candidates': related_candidates}, status=status.HTTP_200_OK)
