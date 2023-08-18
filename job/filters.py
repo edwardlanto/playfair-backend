@@ -18,7 +18,7 @@ class JobsFilter(filters.FilterSet):
         return queryset.filter(type__contains=[{ "label": value, "value": value }])
     
     def location_filter(self, queryset, name, value):
-        return queryset.filter(Q(country__icontains=value) | Q(city__icontains=value))
+        return queryset.filter(Q(country__icontains=value) | Q(city__icontains=value) | Q(state__icontains=value))
     
     def keyword_filter(self, queryset, name, value):
         return queryset.filter(Q(industry__icontains=value) | Q(description__icontains=value))
