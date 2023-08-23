@@ -12,7 +12,7 @@ class JobsFilter(filters.FilterSet):
     city = filters.CharFilter(field_name="city", lookup_expr="icontains")
     experience = filters.CharFilter(field_name="experience", lookup_expr="icontains")
     type = filters.CharFilter(field_name="work_status", lookup_expr="icontains")
-    min_salary = filters.NumberFilter(field_name="min_salary", lookup_expr="gt")
+    min_salary = filters.NumberFilter(field_name="min_salary", lookup_expr="gte")
 
     def type_filter(self, queryset, name, value):
         print(value)
