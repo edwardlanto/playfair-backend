@@ -11,11 +11,12 @@ class JobsFilter(filters.FilterSet):
     industry = filters.CharFilter(method="industry_filter")
     city = filters.CharFilter(field_name="city", lookup_expr="icontains")
     experience = filters.CharFilter(field_name="experience", lookup_expr="icontains")
-    type = filters.CharFilter(field_name="type", lookup_expr="icontains")
+    type = filters.CharFilter(field_name="work_status", lookup_expr="icontains")
     min_salary = filters.NumberFilter(field_name="min_salary", lookup_expr="gt")
 
     def type_filter(self, queryset, name, value):
-        return queryset.filter(type__contains=[{ "label": value, "value": value }])
+        print(value)
+        return queryset.filter(Q(work_status__icontains=value))
     
     def location_filter(self, queryset, name, value):
         return queryset.filter(Q(country__icontains=value) | Q(city__icontains=value) | Q(state__icontains=value))
