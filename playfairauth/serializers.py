@@ -26,7 +26,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         exclude = ('user',)
 
 class BaseUserProfileSerializer(serializers.ModelSerializer):
-    user = ChatModelSerializer()
+
     class Meta:
         model = CustomUserProfile
         fields = (
@@ -35,7 +35,6 @@ class BaseUserProfileSerializer(serializers.ModelSerializer):
             "languages",
             "interests",
             "logo",
-            "user",
             "bio",
             "expected_salary",
             "created_date",
@@ -174,7 +173,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 data = super().validate(attrs)
                 refresh = self.get_token(self.user)
                 access_token = refresh.access_token
-                access_token.set_exp(lifetime=timedelta(minutes=2))
+                access_token.set_exp(lifetime=timedelta(minutes=100))
                 try:
                     data['provider'] = 'credentials'
                     data['user'] = CustomUserSerializer(user).data
@@ -183,6 +182,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     data['pf_access_token']: access_token
                     return data
                 except Exception as e:
+                    print(str(e))
                     raise serializers.ValidationError(str(e))
             else:
                 raise serializers.ValidationError("Account is Blocked")

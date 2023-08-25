@@ -60,6 +60,7 @@ class Contract(models.Model):
         choices=Type.choices,
         default=Type.buying
     )
+    images = ArrayField(models.FileField(null=True, blank=True), default=list, blank=True)
     quantity = models.IntegerField(default=1)
     city = models.CharField(max_length=100, null=True)
     country = models.CharField(max_length=100, null=True)

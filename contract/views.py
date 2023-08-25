@@ -138,6 +138,8 @@ def verify(request):
 @transaction.atomic
 def create(request):
     try:
+        user = CustomUserModel.objects.filter(id=request.user.id).first()
+
         data = request.data
         contract = Contract.objects.create(
             title = bleach.clean(data['title']),
@@ -160,7 +162,7 @@ def create(request):
         )
         contract.save()
         
-        return Response({'contract': ContractSerializer(contract).data}, status=status.HTTP_200_OK)
+        return Response({'contract': ContractSerializer(contract, context={'request': request}).data}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -187,6 +189,19 @@ def update(request, pk):
         contract.save()
         
         return Response({'contract': ContractSerializer(contract, context={'request': request}).data}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['PATCH'])
+# @transaction.atomic 
+def upload_images(request, pk):
+    try:
+        data = request.data
+        contract = Contract.objects.get(id=pk)
+        contract.images = data['images']
+        contract.save()
+        
+        return Response({'contract': 'test'}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
