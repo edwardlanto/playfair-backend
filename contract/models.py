@@ -74,3 +74,13 @@ class Contract(models.Model):
 
     class Meta:
         db_table = "contract"
+
+class Image(models.Model):
+    id = models.CharField(max_length = 50, default = uuid.uuid4, primary_key = True, editable = False)
+    image = models.FileField(null=True, blank=True)
+    contract = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, related_name="contract_image")
+    preview = models.BooleanField(default=False)
+    
+    class Meta:
+        db_table = "images"
+

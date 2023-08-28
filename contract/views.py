@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 import decimal
 import math
 from django.core import serializers
-from .models import Contract
+from .models import Contract, Image
 from django.contrib.auth.models import User
 from datetime import date
 from .serializers import * 
@@ -192,18 +192,42 @@ def update(request, pk):
     except Exception as e:
         return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@api_view(['PATCH'])
+@api_view(['PATCH', 'PUT'])
 # @transaction.atomic 
 def upload_images(request, pk):
-    try:
-        data = request.data
-        contract = Contract.objects.get(id=pk)
-        contract.images = data['images']
-        contract.save()
+    if request.method == 'PUT':
+        try:
+            contract = Contract.objects.get(id=pk)
+            for item in request.FILES.getlist('images[]'):
+
+                image = Image.objects.create(
+                    contract=contract,
+                    image = item,
+                    preview=True
+                )
+
+                image.save()
+
+            return Response({'contract': contract.id}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        return Response({'contract': 'test'}, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if request.method == 'PATCH':
+        try:
+            contract = Contract.objects.get(id=pk)
+            for item in request.FILES.getlist('images[]'):
+
+                image = Image.objects.create(
+                    contract=contract,
+                    image = item,
+                    preview=True
+                )
+
+                image.save()
+
+            return Response({'contract': contract.id}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['GET'])
 @transaction.atomic

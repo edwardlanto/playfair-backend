@@ -145,7 +145,7 @@ class Job(models.Model):
     positions = models.IntegerField(default=1)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, related_name="company", blank=True)
     responsibilities = RichTextField(blank=True, null=True)
-    skills = RichTextField(blank=True, null=True)
+    type = ArrayField(models.JSONField(), blank=True, null=True)
     lat = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     long = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     user = models.ForeignKey('playfairauth.CustomUserModel', on_delete=models.SET_NULL, null=True)
