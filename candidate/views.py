@@ -25,7 +25,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import Group
 
-bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong']
+bleached_tags = ['p', 'b', 'br', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'em', 'a', 'div', 'strong', 'u']
 bleached_attr = ['class', 'href', 'style']
 
 def is_candidate(user):
