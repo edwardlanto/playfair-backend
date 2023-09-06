@@ -456,8 +456,8 @@ def get_candidate(request, pk):
         if profile == None:
             return Response(status.HTTP_404_NOT_FOUND)
         return Response({ "candidate": FullUserProfileSerializer(profile).data, 'related_candidates': related_candidates}, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({ "error": str(e)}, status=status.HTTP_200_OK)
+    except CustomUserProfile.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['DELETE'])
 def delete_logo(request):
