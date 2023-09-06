@@ -24,10 +24,10 @@ class ContractSerializer(serializers.ModelSerializer):
         images = Image.objects.filter(contract=obj.id).all()
 
         for x in images:
-            print(x.image.url)
             array.append({
                 "name": x.image.name,
-                "url": x.image.url
+                "url": x.image.url,
+                "id": x.id
             })
         return array
     
@@ -48,7 +48,6 @@ class BaseContractSerializer(serializers.ModelSerializer):
         preview = Image.objects.filter(contract=obj.id).first()
     
         if preview != None:
-            print(preview)
             preview = preview.image.url
         else:
             preview = None

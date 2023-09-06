@@ -34,5 +34,5 @@ class BaseJobSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Job
         fields = ('id', 'uuid', 'title', 'min_salary', 'max_salary', 'created_date', 'company', 'type', 'is_saved', 'city', 'country', 
-                  'candidates', 'is_remote', 'is_commission', 'is_active', 'work_status', 'rate_type', 'user')
+                  'candidates', 'is_remote', 'is_commission', 'is_active', 'work_status', 'rate_type', 'user', 'skills')
 

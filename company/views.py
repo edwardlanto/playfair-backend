@@ -86,10 +86,8 @@ def get_company(request, pk):
             "relatedJobs": related_jobs.data,
             "relatedCompanies": related_companies.data
         }, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({
-            'error': str(e)
-        }, status=status.HTTP_404_NOT_FOUND)
+    except Company.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def read_my_company(request):
@@ -399,7 +397,7 @@ def new_job(request):
             positions = int(form['positions']),
             company = company,
             responsibilities = bleach.clean(form['responsibilities'], attributes=bleached_attr, tags=bleached_tags),
-            skills = bleach.clean(form['skills'], attributes=bleached_attr, tags=bleached_tags),
+            skills = form['skills'],
             weekly_hours = int(form['weekly_hours']),
             user = user,
             is_active = True,

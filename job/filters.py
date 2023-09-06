@@ -15,7 +15,6 @@ class JobsFilter(filters.FilterSet):
     min_salary = filters.NumberFilter(field_name="min_salary", lookup_expr="gte")
 
     def type_filter(self, queryset, name, value):
-        print(value)
         return queryset.filter(Q(work_status__icontains=value))
     
     def location_filter(self, queryset, name, value):

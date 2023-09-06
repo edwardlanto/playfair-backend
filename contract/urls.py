@@ -8,6 +8,7 @@ urlpatterns = [
     path('applications', views.applications, name='applications'),
     path('<str:pk>/', views.get, name='confirm-contract'),
     path('<str:pk>/images/upload', views.upload_images, name='upload-images'),
+    path('<str:pk>/images/delete', views.delete_images, name='delete-image'),
     path('update/<str:pk>', views.update, name='update-contract'),
     path('apply/<str:pk>', views.apply, name='apply'),
     path('delete/<str:pk>', views.delete, name='delete'),

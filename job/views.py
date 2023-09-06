@@ -118,6 +118,8 @@ def get_job(request, pk):
     
     except Job.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    # except Exception as e:
+    #     return Response({'data': str(e)},status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])

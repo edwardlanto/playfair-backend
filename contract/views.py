@@ -177,6 +177,7 @@ def update(request, pk):
         contract.currency = data['currency']
         contract.delivery_type = bleach.clean(data['delivery_type'])
         contract.quantity = data['quantity']
+        contract.amount = data['amount']
         contract.industry = bleach.clean(data['industry'])
         contract.type = bleach.clean(data['type'])
         contract.lat = data['lat']
@@ -212,23 +213,14 @@ def upload_images(request, pk):
         except Exception as e:
             return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    if request.method == 'PATCH':
-        try:
-            contract = Contract.objects.get(id=pk)
-            for item in request.FILES.getlist('images[]'):
-
-                image = Image.objects.create(
-                    contract=contract,
-                    image = item,
-                    preview=True
-                )
-
-                image.save()
-
-            return Response({'contract': contract.id}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+@api_view(['DELETE'])
+# @transaction.atomic 
+def delete_images(request, pk):
+    try:
+        Image.objects.filter(id__in=request.data['images']).delete()
+        return Response({'message': 'Deleted'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 @api_view(['GET'])
 @transaction.atomic
 def get(request, pk):
@@ -401,11 +393,9 @@ def update_application(request, pk):
 
             contract = Contract.objects.get(id=application.contract.id)
             current_conversation = Conversation.objects.filter(contract=contract.id).first()
-            print(request.data['is_approved'])
             if current_conversation != None:
                 return Response({"conversation": current_conversation.id, 'application': AppliedContractSerializer(application).data},status=status.HTTP_200_OK)
             if request.data['is_approved'] == True:
-                print('true')
                 conversation = Conversation.objects.create(
                     name=contract.title,
                     applied_contract=application,
