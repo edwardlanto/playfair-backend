@@ -26,7 +26,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         exclude = ('user',)
 
 class BaseUserProfileSerializer(serializers.ModelSerializer):
-
+    user = ChatModelSerializer()
     class Meta:
         model = CustomUserProfile
         fields = (
@@ -44,6 +44,7 @@ class BaseUserProfileSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'id',
+            'user'
         )
 
 class BaseUserModelSerializer(serializers.ModelSerializer):
