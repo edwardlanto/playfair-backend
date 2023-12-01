@@ -174,7 +174,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 data = super().validate(attrs)
                 refresh = self.get_token(self.user)
                 access_token = refresh.access_token
-                access_token.set_exp(lifetime=timedelta(minutes=100))
+                access_token.set_exp(lifetime=timedelta(minutes=5))
                 try:
                     data['provider'] = 'credentials'
                     data['user'] = CustomUserSerializer(user).data
