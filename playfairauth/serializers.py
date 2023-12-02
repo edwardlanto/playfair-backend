@@ -23,13 +23,20 @@ class ChatModelSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUserProfile
-        exclude = ('user',)
 
 class BaseUserProfileSerializer(serializers.ModelSerializer):
-    user = ChatModelSerializer()
+    # user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        # print(obj.user.id, 'obj')
+        # print(self.id, 'self')
+        # username = CustomUserModel.objects.get(id=obj.user.id)[0]
+        return "TEST"
+    
     class Meta:
         model = CustomUserProfile
         fields = (
+            # "user",
             "industry",
             "experience",
             "languages",
@@ -44,7 +51,7 @@ class BaseUserProfileSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'id',
-            'user'
+   
         )
 
 class BaseUserModelSerializer(serializers.ModelSerializer):
@@ -110,6 +117,7 @@ class CustomUserSerializer(ModelSerializer):
         ]
 
     def create(self, validated_data):
+        print('Creating User')
         user = CustomUserModel.objects.create_user(
             validated_data["username"],
             validated_data["email"],
@@ -135,6 +143,7 @@ class FullCustomUserSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        print('Creating User Model')
         user = CustomUserModel.objects.create_user(
             validated_data["username"],
             validated_data["email"],
@@ -146,6 +155,7 @@ class FullCustomUserSerializer(serializers.ModelSerializer):
         return user
 
     def create_company(self, validated_data):
+        print("Created Company")
         company = CustomUserModel.objects.create_company(
             validated_data["username"],
             validated_data["email"],
@@ -176,6 +186,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 access_token = refresh.access_token
                 access_token.set_exp(lifetime=timedelta(minutes=5))
                 try:
+                    print("token here")
                     data['provider'] = 'credentials'
                     data['user'] = CustomUserSerializer(user).data
                     data["account_type"] = list(user.groups.all().values_list('name', flat=True))

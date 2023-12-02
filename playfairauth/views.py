@@ -94,6 +94,7 @@ class EmployerView(generics.ListCreateAPIView):
                 if Company.objects.filter(email=request.data['name']).exists():
                     return Response({"error": "Company name already in use."}, status=status.HTTP_400_BAD_REQUEST)                
                 if request.data['account_type'] == 'company':
+                    print("type company")
                     user = {
                         'email': request.data['email'].lower(),
                         'username': request.data['name'], 
@@ -101,10 +102,11 @@ class EmployerView(generics.ListCreateAPIView):
                         'account_type': request.data['account_type'],
                     } 
                     queryset = CustomUserModel.objects.create_user(**user)
-
+                    print('queryset', queryset.id)
                     if queryset.id != None:
+                        print("company here")
                         company = Company.objects.create(
-                            user=queryset,
+                             user=queryset,
                             name=request.data['name'],  
                             email = request.data['email'],
                             phone =  request.data['phone'],
