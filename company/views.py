@@ -112,7 +112,7 @@ def update_my_company(request):
         }, status=status.HTTP_403_FORBIDDEN)
 
     company.name = bleach.clean(data['name']) if bleach.clean(data['name']) != None else None
-    # company.description = bleach.clean(data['description'], attributes=bleached_attr, tags=bleached_tags) if data['description'] else None
+    company.description = bleach.clean(data['description']) if data['description'] else None
     company.email = bleach.clean(data['email']) if data['email'] else None
     company.phone = bleach.clean(data['phone']) if data['phone'] else None
     company.address = bleach.clean(data['address']) if data['address'] else None

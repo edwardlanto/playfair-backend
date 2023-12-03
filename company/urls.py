@@ -3,12 +3,9 @@ from . import views
 
 urlpatterns = [
     path('', views.get_companies, name='companies'),
-    # path('profile/logo/delete', views.delete_logo, name='delete_logo'),
     path('profile/jobs/create/', views.new_job, name='new_job'),
     path('read/me/', views.read_my_company, name='read_my_company'),
     path('update/me', views.update_my_company, name='update_my_company'),
-    # path('update/logo', views.update_my_logo, name='update_my_logo'),
-    # path('logo/delete/', views.delete_logo, name='delete_logo_company'),
     path('logo/update', views.upload_company_logo, name="upload_company_logo"),
     path('user/company/<str:pk>/save/', views.saveCompany, name='save_company'),
     path('user/company/<str:pk>/unsave/', views.unsaveCompany, name='unsave_company'),
