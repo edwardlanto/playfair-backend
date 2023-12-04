@@ -7,6 +7,8 @@ from candidate.models import AppliedJob
 from rest_framework.decorators import api_view, permission_classes
 from company.serializers import CompanySerializer, BaseCompanySerializer, ProfileCompanySerializer
 from company.filters import CompanyFilter
+from geopy.geocoders import Nominatim
+import geocoder
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -378,6 +380,9 @@ def new_job(request):
         user = CustomUserModel.objects.get(id=request.user.id)
         company = Company.objects.filter(user_id=request.user.id).get()
         form = request.data
+        geolocator = Nominatim(user_agent="PlayfairGeoPy")
+        location = geolocator.reverse(f'{form["lat"]}, {form["long"]}')
+        address = location.raw['address']
         job = Job.objects.create(
             title = bleach.clean(form['title']),
             description = bleach.clean(form['description'], attributes=bleached_attr, tags=bleached_tags),
@@ -386,10 +391,10 @@ def new_job(request):
             featured = False,
             candidates = [],
             education = bleach.clean(form['education']),
-            country = bleach.clean(form['country']),
+            country = bleach.clean(address['country']),
             address = bleach.clean(form['address']),
-            state = bleach.clean(form['state']),
-            city = bleach.clean(form['city']),
+            state = bleach.clean(address['city']),
+            city = bleach.clean(address['state']),
             industry = bleach.clean(form['industry']),
             experience = bleach.clean(form['experience']),
             min_salary = int(form['min_salary']),

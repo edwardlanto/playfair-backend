@@ -518,8 +518,8 @@ def address(request):
     # address = location.raw['address']
     # print(address)
 
-    g = geocoder.canadapost('7231 Sherbrooke St, Vancouver, BC V5X 4E3, Canada', key="887e5a7cb633632e:f524cc3fd1d9300fea322f")
-    print(g.postal)
+    # g = geocoder.canadapost('7231 Sherbrooke St, Vancouver, BC V5X 4E3, Canada', key="887e5a7cb633632e:f524cc3fd1d9300fea322f")
+    # print(g.postal)
     return Response()
 
 @api_view(['GET', 'POST'])
