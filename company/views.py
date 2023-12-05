@@ -272,7 +272,7 @@ def update_job(request, pk):
             'message': 'You can not update this job'
         }, status=status.HTTP_403_FORBIDDEN)
     geolocator = Nominatim(user_agent="PlayfairGeoPy")
-    location = geolocator.reverse(f'{job["lat"]}, {job["long"]}')
+    location = geolocator.reverse(f'{request.data["lat"]}, {request.data["long"]}')
     address = location.raw['address']
     job.title = request.data['title']
     job.description = request.data['description']
