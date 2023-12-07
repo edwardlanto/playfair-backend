@@ -25,18 +25,22 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = CustomUserProfile
 
 class BaseUserProfileSerializer(serializers.ModelSerializer):
-    # user = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
 
     def get_user(self, obj):
-        # print(obj.user.id, 'obj')
-        # print(self.id, 'self')
-        # username = CustomUserModel.objects.get(id=obj.user.id)[0]
-        return "TEST"
+        object = {}
+        print(obj.user.id)
+        profile = CustomUserModel.objects.get(id=obj.user.id)
+        if profile.image:
+            object['image'] = profile.image.url
+        else:
+            object['image'] = None
+        return object
     
     class Meta:
         model = CustomUserProfile
         fields = (
-            # "user",
+            "user",
             "industry",
             "experience",
             "languages",
